@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.build.json",
+  "include": [
+    "src/*"
+  ],
+    "exclude": [
+	"node_modules", "old"
+	]
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "sourceMap": true
+    }
+  }
+}
