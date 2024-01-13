@@ -121,11 +121,12 @@ async function main() {
 	holderDid.uri,
 	{
 	    spaceUri: space.uri,
-	    schemaUri: schemaUri
+	    schemaUri: schemaUri,
 	}
     )
 
-    let vc = await addProof(newCredContent, issuerKeys, issuerDid, { spaceUri: space.uri, schemaUri });
+    let vc = await addProof(newCredContent, issuerKeys, issuerDid,
+    	   { spaceUri: space.uri, schemaUri, needSDR: true });
     const credHash = vc.credentialHash;
     
     const statementEntry = await Cord.Statement.buildFromProperties(

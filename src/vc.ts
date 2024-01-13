@@ -13,15 +13,19 @@ export interface IContents {
     | Array<ContentPrimitives | IContents>
 }
 
-export function calculateVCHash(vc: any): string {
+export function calculateVCHash(vc: any, contentHashes: Hash[] | undefined): string {
     const {
 	issuanceDate,
 	validFrom,
 	validUntil,
 	issuer,
-	credentialSubject
+	credentialSubject,
     } = vc;
+    
     let newCredContent = { issuanceDate, validFrom, validUntil, issuer, credentialSubject };
+    if (contentHashes) {
+        newCredContent = { issuanceDate, validFrom, validUntil, issuer, holder: credentialSubject.id, contentHashes };
+    }
     const serializedCred = Cord.Utils.Crypto.encodeObjectAsStr(newCredContent)
     const credHash = Cord.Utils.Crypto.hashStr(serializedCred)
 
@@ -36,9 +40,31 @@ export async function addProof(
     options: any
 ) {
     const now = dayjs();
+    let credHash = calculateVCHash(vc, undefined);
 
-    let credHash = calculateVCHash(vc);
+    /* TODO: Bring selective disclosure here */
+    let proof2: any = undefined;
+    if (options.needSDR) {
+        let contents = { ...vc.credentialSubject};
+        delete contents.id;
+
+        let hashes = hashContents(contents, options.schemaUri);
+       
+	/* proof 2 - ConentNonces for selective disclosure */
+	/* This will enable the selective disclosure. This may not be compatible with the normal VC */
+	/* This also would change the 'credentialSubject' */
+	proof2 = {
+	    type: 'CordSDRProof2024',
+	    defaultDigest: credHash,
+	    hashes: hashes.hashes,
+	    nonceMap: hashes.nonceMap,
+	}
+	let vocabulary = `${options.schemaUri}#`;
+	vc.credentialSubject['@context'] = { 'vocab': vocabulary }
+	credHash = calculateVCHash(vc, hashes.hashes);
+    }
     vc.credentialHash = credHash;
+
     /* proof 0 - Ed25519 */
     /* validates ownership by checking the signature against the DID */
 
@@ -76,21 +102,6 @@ export async function addProof(
     }
 
     vc['proof'] = [ proof0, proof1 ];
-
-    /* TODO: Bring selective disclosure here */
-    let proof2: any = undefined;
-    if (options?.needSDR) {
-	/* proof 2 - ConentNonces for selective disclosure */
-	/* This will enable the selective disclosure. This may not be compatible with the normal VC */
-	/* This also would change the 'credentialSubject' */
-	vc.credentialSubject = {
-	    id: vc.credentialSubject.id,
-	    contents: []
-	}
-	proof2 = {
-	    type: 'CordSelectiveDisclosureProof2023',
-	}
-    }
     if (proof2) vc.proof.push(proof2);
 
     return vc;
@@ -98,12 +109,16 @@ export async function addProof(
 
 
 export async function verifyVC(vc: any) {
-    /* assumption is one is getting the vc with proof here */
-    let credHash =  calculateVCHash(vc);
-    let identifier = vc.id;
-
     /* proof check */
     const proofs = vc.proof;
+
+    /* digest may change depending on if its SDR based VC or simple VC */
+    let hashes = proofs.filter(obj => obj.type === 'CordSDRProof2024').map((obj) => {return obj.hashes});
+
+    /* assumption is one is getting the vc with proof here */
+    let credHash =  calculateVCHash(vc, hashes.length ? hashes[0] : undefined);
+    let identifier = vc.id;
+
 
     for (let i = 0; i < proofs.length; i++) {
 	let obj = proofs[i];
@@ -143,6 +158,10 @@ export async function verifyVC(vc: any) {
 	    await Cord.Did.verifyDidSignature({ message: credHash, signature, keyUri: obj.verificationMethod});
 	    /* all is good, no throw */
         }
+	if (obj.type === 'CordSDRProof2024') {
+	    /* make sure from whats is present in content, we get back the same content nonces */
+	    console.log("Verification of SDR elements pending");
+	}
     }
 }
 
@@ -153,8 +172,9 @@ function jsonLDcontents(
   const result: Record<string, unknown> = {};
 
   const flattenedContents = Cord.Utils.DataUtils.flattenObject(contents || {});
-
-  result['@context'] =  { '@vocab': `${schemaId}#` };
+  const vocabulary = `${schemaId}#`;
+  console.log(vocabulary);
+  result['@context'] =  { '@vocab': vocabulary };
 
   Object.entries(flattenedContents).forEach(([key, value]) => {
     result[vocabulary + key] = value;
@@ -233,7 +253,6 @@ export function buildVcFromContent(
 
     const credentialSubject = {
 	...contents,
-	'@context':  { '@vocab': `${schema.$id}#` },
 	id: holder,
     }
     let vc: any = {
@@ -258,4 +277,3 @@ export function buildVcFromContent(
 
   return vc;
 }
-
