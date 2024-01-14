@@ -127,24 +127,13 @@ async function main() {
 
     let vc = await addProof(newCredContent, issuerKeys, issuerDid,
     	   { spaceUri: space.uri, schemaUri, needSDR: true });
-    const credHash = vc.credentialHash;
-    
-    const statementEntry = await Cord.Statement.buildFromProperties(
-	credHash,
-	space.uri,
-	issuerDid.uri,
-	schemaUri,
-    )
-
-    let elem = statementEntry.elementUri.split(':');
-    vc.id = `${elem[0]}:${elem[1]}:${elem[2]}`;
     console.dir(vc, {
 	depth: null,
 	colors: true,
     })
     
     const statement = await Cord.Statement.dispatchRegisterToChain(
-	statementEntry,
+	vc.proof[1],
 	issuerDid.uri,
 	authorIdentity,
 	space.authorization,

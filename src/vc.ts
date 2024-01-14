@@ -100,6 +100,7 @@ export async function addProof(
 	digest: vc.credentialHash,
 	identifier: `${elem[0]}:${elem[1]}:${elem[2]}`
     }
+    vc.id = proof1.identifier;
 
     vc['proof'] = [ proof0, proof1 ];
     if (proof2) vc.proof.push(proof2);
