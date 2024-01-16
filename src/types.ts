@@ -46,11 +46,12 @@ export interface VerifiableCredential {
 }
 
 /* TODO: make it more clear, and better - followup PRs */
+/* CORD only allows array of VC(s) */
 export interface VerifiablePresentation {
   '@context': Array<string>
   type: Array<string>
   proof: Array<VCProof> | VCProof
   holder: Cord.DidUri
-  VerifiableCredential: VerifiableCredential[] | VerifiableCredential
+  VerifiableCredential: VerifiableCredential[]
   [key: string]: any
 }

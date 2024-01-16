@@ -3,7 +3,7 @@ import { createDid } from './generateDid'
 import { randomUUID } from 'crypto'
 import 'dotenv/config'
 
-import { verifyVC, addProof, buildVcFromContent } from '../../src/vc';
+import { verifyVP, verifyVC, addProof, buildVcFromContent, makePresentation } from '../../src/vc';
 
 import {
   requestJudgement,
@@ -147,6 +147,11 @@ async function main() {
 
     await verifyVC(vc);
 
+    const holderKeys = Cord.Utils.Keys.generateKeypairs(holderMnemonic, 'ed25519')
+
+    let vp = await makePresentation([vc], holderDid, holderKeys, getChallenge(), {});
+    console.dir(vp, { colors: true });
+    await verifyVP(vp);
 }
 main()
   .then(() => console.log('\nBye! 👋 👋 👋 '))

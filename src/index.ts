@@ -1,2 +1,3 @@
-export * from './vc.js';
-export * from './docs.js';
+export * from './vc';
+//export * from './docs';
+export * from './types';
