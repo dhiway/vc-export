@@ -50,7 +50,7 @@ export interface VerifiableCredential {
 export interface VerifiablePresentation {
   '@context': Array<string>
   type: Array<string>
-  proof: Array<VCProof> | VCProof
+  proof: VCProof
   holder: Cord.DidUri
   VerifiableCredential: VerifiableCredential[]
   [key: string]: any
