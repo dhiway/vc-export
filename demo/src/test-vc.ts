@@ -149,8 +149,11 @@ async function main() {
 
     const holderKeys = Cord.Utils.Keys.generateKeypairs(holderMnemonic, 'ed25519')
 
-    let vp = await makePresentation([vc], holderDid, holderKeys, getChallenge(), {});
-    console.dir(vp, { colors: true });
+    let vp = await makePresentation([vc], holderDid, holderKeys, getChallenge(), {
+	needSDR: true,
+	selectedFields: ['age', 'address']
+    });
+    console.dir(vp, { colors: true, depth: null });
     await verifyVP(vp);
 }
 main()

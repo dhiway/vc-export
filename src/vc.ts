@@ -233,7 +233,32 @@ export async function makePresentation(
     const now = dayjs();
     let copiedVcs = vcs;
     if (options?.needSDR) {
-	copiedVcs = vcs; /* TODO: use remove fields later */
+	copiedVcs = []
+
+	for (let i = 0; i < vcs.length; i++) {
+	    let vc = vcs[i];
+
+	    if (options.selectedFields) {
+		let subject = vc.credentialSubject;
+		let newSubject = {
+		    id: subject.id,
+		    ['@context']: subject['@context'],
+		}
+
+		Object.keys(subject).forEach((key) => {
+		    if (options.selectedFields.includes(key)) {
+			newSubject[key] = subject[key]
+		    }
+		});
+		let copyOfVC = {
+		    ...vc,
+		    credentialSubject: newSubject
+		};
+		copiedVcs.push(copyOfVC);
+	    } else {
+		copiedVcs.push(vc);
+	    }
+	}
     }
     let signature = await holderKeys.assertionMethod.sign(challenge);
 
@@ -377,7 +402,7 @@ export async function verifyProofElement(proof: VCProof, credHash: string | Cord
 	    vc?.credentialSchema?.$id,
 	    obj.nonceMap,
 	    obj.hashes,
-	    ['age', 'country'], //Object.keys(subject),
+	    Object.keys(subject),
 	);
     }
 
