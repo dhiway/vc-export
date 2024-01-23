@@ -18,15 +18,9 @@ function hash(value: string) {
 // path: file path on storage
 export async function getCordProofForDigest(
     digest: Cord.HexString,
-    issuerKeys: Cord.ICordKeyPair,
     issuerDid: Cord.DidDocument,
     options: any
 ) {
-    /*
-    const content: any = fs.readFileSync(path);
-    filehash = hash(content);
-    digest = `0x${filehash}`;
-    */
     const statementEntry = Cord.Statement.buildFromProperties(
 	digest,
 	options.spaceUri!,

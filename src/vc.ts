@@ -38,7 +38,7 @@ export function calculateVCHash(vc: VerifiableCredential, contentHashes: Cord.He
    but when compared with output of locally created sign, they are different */
 export async function addProof(
     vc: VerifiableCredential,
-    issuerKeys:  Cord.ICordKeyPair,
+    callbackFn:  any,
     issuerDid:  Cord.DidDocument,
     options: any
 ) {
@@ -71,18 +71,14 @@ export async function addProof(
     /* proof 0 - Ed25519 */
     /* validates ownership by checking the signature against the DID */
 
-    let signature = await issuerKeys.assertionMethod.sign(vc.credentialHash);
-    let keyType = 'assertionMethod';
-    let keyUri = `${issuerDid.uri}${
-	issuerDid.assertionMethod![0].id
-      }` as Cord.DidResourceUri;
+    let cbData = await callbackFn(vc.credentialHash);
 
     let proof0: ED25519Proof  = {
 	type: "Ed25519Signature2020",
 	created: now.toDate().toString(),
-	proofPurpose: keyType,
-	verificationMethod: keyUri,
-	proofValue: 'z' + base58Encode(signature),
+	proofPurpose: cbData.keyType,
+	verificationMethod: cbData.keyUri,
+	proofValue: 'z' + base58Encode(cbData.signature),
 	challenge: undefined
     }
 
@@ -226,7 +222,7 @@ export function buildVcFromContent(
 export async function makePresentation(
     vcs: VerifiableCredential[],
     holder: Cord.DidDocument,
-    holderKeys: Cord.ICordKeyPair,
+    callbackFn: any,
     challenge: string,
     options: any,
 ) {
@@ -260,20 +256,15 @@ export async function makePresentation(
 	    }
 	}
     }
-    let signature = await holderKeys.assertionMethod.sign(challenge);
-
-    let keyType = 'assertionMethod';
-    let keyUri = `${holder.uri}${
-	holder.assertionMethod![0].id
-      }` as Cord.DidResourceUri;
+    let cbData = await callbackFn(challenge);
 
     let proof0: ED25519Proof  = {
 	"challenge": challenge,
 	"type": "Ed25519Signature2020",
 	"created": now.toDate().toString(),
-	"proofPurpose": keyType,
-	"verificationMethod": keyUri,
-	"proofValue": 'z' + base58Encode(signature),
+	"proofPurpose": cbData.keyType,
+	"verificationMethod": cbData.keyUri,
+	"proofValue": 'z' + base58Encode(cbData.signature),
     }
     let vp: VerifiablePresentation = {
 	'@context': [

@@ -137,8 +137,16 @@ async function main() {
 	}
     )
 
-    let vc = await addProof(newCredContent, issuerKeys, issuerDid,
-    	   { spaceUri: space.uri, schemaUri, needSDR: true });
+    let vc = await addProof(
+	newCredContent,
+	async (data) => ({
+	    signature: await issuerKeys.assertionMethod.sign(data),
+	    keyType: issuerKeys.assertionMethod.type,
+	    keyUri: `${issuerDid.uri}${issuerDid.assertionMethod![0].id}` as Cord.DidResourceUri,
+	}),
+	issuerDid,
+    	{ spaceUri: space.uri, schemaUri, needSDR: true }
+    );
     console.dir(vc, {
 	depth: null,
 	colors: true,
@@ -149,7 +157,7 @@ async function main() {
 	issuerDid.uri,
 	authorIdentity,
 	space.authorization,
-	async ({ data }) => ({
+	async ({data}) => ({
 	    signature: issuerKeys.authentication.sign(data),
 	    keyType: issuerKeys.authentication.type,
 	})
@@ -161,10 +169,20 @@ async function main() {
 
     const holderKeys = Cord.Utils.Keys.generateKeypairs(holderMnemonic, 'ed25519')
 
-    let vp = await makePresentation([vc], holderDid, holderKeys, getChallenge(), {
-	needSDR: true,
-	selectedFields: ['age', 'address']
-    });
+    let vp = await makePresentation(
+	[vc],
+	holderDid,
+	async (data) => ({
+	    signature: holderKeys.assertionMethod.sign(data),
+	    keyType: holderKeys.assertionMethod.type,
+	    keyUri: `${holderDid.uri}${holderDid.assertionMethod![0].id}` as Cord.DidResourceUri,
+	}),
+	getChallenge(),
+	{
+	    needSDR: true,
+	    selectedFields: ['age', 'address']
+	}
+    );
     console.dir(vp, { colors: true, depth: null });
     /* VP verification would 'throw' an error in case of error */
     await verifyVP(vp);
@@ -176,9 +194,11 @@ async function main() {
     hashFn.update(content);
     let digest = `0x${hashFn.digest('hex')}`;
 
-    const docProof = await getCordProofForDigest(digest, issuerKeys, issuerDid, {
-    	  spaceUri: space.uri,
-    });
+    const docProof = await getCordProofForDigest(
+	digest,
+	issuerDid,
+	{ spaceUri: space.uri, }
+    );
     const statement1 = await Cord.Statement.dispatchRegisterToChain(
 	docProof,
 	issuerDid.uri,
