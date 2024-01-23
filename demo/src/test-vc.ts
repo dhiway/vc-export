@@ -3,7 +3,19 @@ import { createDid } from './generateDid'
 import { randomUUID } from 'crypto'
 import 'dotenv/config'
 
-import { verifyVP, verifyVC, addProof, buildVcFromContent, makePresentation } from '../../src/vc';
+import fs from 'fs';
+import crypto from 'crypto';
+
+import {
+    verifyVP,
+    verifyVC,
+    addProof,
+    buildVcFromContent,
+    makePresentation,
+    verifyProofElement,
+} from '../../src/vc';
+
+import { getCordProofForDigest } from '../../src/docs';
 
 import {
   requestJudgement,
@@ -154,8 +166,36 @@ async function main() {
 	selectedFields: ['age', 'address']
     });
     console.dir(vp, { colors: true, depth: null });
+    /* VP verification would 'throw' an error in case of error */
     await verifyVP(vp);
+
+
+    /* sample for document hash anchor on CORD */
+    const content: any = fs.readFileSync('./package.json');
+    const hashFn = crypto.createHash('sha256');
+    hashFn.update(content);
+    let digest = `0x${hashFn.digest('hex')}`;
+
+    const docProof = await getCordProofForDigest(digest, issuerKeys, issuerDid, {
+    	  spaceUri: space.uri,
+    });
+    const statement1 = await Cord.Statement.dispatchRegisterToChain(
+	docProof,
+	issuerDid.uri,
+	authorIdentity,
+	space.authorization,
+	async ({ data }) => ({
+	    signature: issuerKeys.authentication.sign(data),
+	    keyType: issuerKeys.authentication.type,
+	})
+    )
+
+    console.dir(docProof, { colors: true, depth: null });
+    console.log(`✅ Statement element registered - ${statement1}`)
+
+    await verifyProofElement(docProof, digest, undefined);
 }
+
 main()
   .then(() => console.log('\nBye! 👋 👋 👋 '))
   .finally(Cord.disconnect)
