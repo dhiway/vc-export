@@ -7,13 +7,16 @@ import fs from 'fs';
 import crypto from 'crypto';
 
 import {
-    verifyVP,
-    verifyVC,
     addProof,
     buildVcFromContent,
     makePresentation,
-    verifyProofElement,
 } from '../../src/vc';
+
+import {
+    verifyVP,
+    verifyVC,
+    verifyProofElement,
+} from '../../src/verifyUtils';
 
 import { getCordProofForDigest } from '../../src/docs';
 
