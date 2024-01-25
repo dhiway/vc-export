@@ -55,3 +55,10 @@ export interface VerifiablePresentation {
   VerifiableCredential: VerifiableCredential[]
   [key: string]: any
 }
+
+/**
+ * A callback function to sign data.
+ */
+export type SignCallback = (
+  signData: any
+) => Promise<Cord.SignResponseData>
