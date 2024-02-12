@@ -1,6 +1,6 @@
 {
-  "name": "@cord.network/vc",
-  "version": "0.0.3",
+  "name": "@cord.network/vc-export",
+  "version": "0.9.3-1rc2",
   "description": "Provides the option to build and verify VCs and VPs",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
@@ -21,20 +21,24 @@
     "build:cjs": "tsc --declaration -p tsconfig.build.json && echo '{\"type\":\"commonjs\"}' > ./lib/cjs/package.json",
     "build:esm": "tsc --declaration -p tsconfig.esm.json && echo '{\"type\":\"module\"}' > ./lib/esm/package.json"
   },
-  "repository": "github:dhiway/cord-vc",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dhiway/cord.js.git"
+  },
   "engines": {
     "node": ">=18.0"
   },
   "author": "Dhiway Engineering <engineering@dhiway.com>",
   "license": "Apache v2.0",
+  "homepage": "https://github.com/dhiway/cord.js#readme",
   "devDependencies": {
     "@types/jsonabc": "^2.3.3",
-    "typescript": "^4.8.3"
+      "typescript": "^4.8.3",
+    "dotenv": "^16.3.1",
+    "jsonabc": "^2.3.1"
   },
   "dependencies": {
-    "@cord.network/sdk": "0.9.3-1develop1",
-    "dotenv": "^16.3.1",
-    "jsonabc": "^2.3.1",
+    "@cord.network/sdk": "0.9.3-1rc2",
     "moment": "^2.29.4"
   }
 }
