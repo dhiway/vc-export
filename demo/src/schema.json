@@ -10,30 +10,30 @@
     "properties": {
         "name": {
             "type": "string"
-          },
-          "age": {
+        },
+        "age": {
             "type": "integer"
-          },
-          "id": {
+        },
+        "id": {
             "type": "string"
-          },
-          "country": {
+        },
+        "country": {
             "type": "string"
-          },
-          "address": {
+        },
+        "address": {
             "type": "object",
             "properties": {
-              "street": { "type": "string" },
-              "pin": { "type": "integer" },
-              "location": {
-                "type": "object",
-                "properties": {
-                  "state": { "type": "string" },
-                  "country": { "type": "string" }
+                "street": { "type": "string" },
+                "pin": { "type": "integer" },
+                "location": {
+                    "type": "object",
+                    "properties": {
+                        "state": { "type": "string" },
+                        "country": { "type": "string" }
+                    }
                 }
-              }
             }
-          }
+        }
     },
     "type": "object"
 }
