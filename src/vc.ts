@@ -120,7 +120,7 @@ export function buildVcFromContent(
         ],
         type: ['VerifiableCredential'],
         issuer: issuer.uri,
-        issuanceDate,
+        issuanceDate: issuanceDate,
         credentialSubject,
         validFrom: validFromString,
         validUntil: validUntilString,
@@ -134,6 +134,35 @@ export function buildVcFromContent(
     vc.credentialHash = calculateVCHash(vc, undefined);
 
     return vc as VerifiableCredential;
+}
+
+export function updateVcFromContent(
+    contents: IContents,
+    vc: VerifiableCredential,
+) {
+    const credentialSubject = {
+        ...contents,
+        id: vc.credentialSubject.id,
+    };
+
+    let updatedVc: any = {
+        '@context': [
+            'https://www.w3.org/2018/credentials/v1',
+            'https://cord.network/2023/cred/v1',
+        ],
+        type: ['VerifiableCredential'],
+        issuer: vc.issuer,
+        issuanceDate: vc.issuanceDate,
+        credentialSubject,
+        validFrom: vc.validFrom,
+        validUntil: vc.validUntil,
+        metadata: vc.metadata,
+        credentialSchema: vc.credentialSchema,
+    };
+
+    updatedVc.credentialHash = calculateVCHash(updatedVc, undefined);
+
+    return updatedVc as VerifiableCredential;
 }
 
 export async function makePresentation(

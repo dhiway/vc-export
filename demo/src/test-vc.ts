@@ -6,18 +6,16 @@ import 'dotenv/config';
 import fs from 'fs';
 import crypto from 'crypto';
 
-import { addProof, buildVcFromContent, makePresentation } from '../../src/vc';
+import {
+    addProof,
+    buildVcFromContent,
+    makePresentation,
+    updateVcFromContent,
+} from '../../src/vc';
 
 import { verifyVP, verifyVC, verifyProofElement } from '../../src/verifyUtils';
 
 import { getCordProofForDigest } from '../../src/docs';
-
-import {
-    requestJudgement,
-    setIdentity,
-    setRegistrar,
-    provideJudgement,
-} from './utils/createRegistrar';
 
 function getChallenge(): string {
     return Cord.Utils.UUID.generate();
@@ -210,6 +208,59 @@ async function main() {
     console.log(`✅ Statement element registered - ${statement1}`);
 
     await verifyProofElement(docProof, digest, undefined);
+
+    // Step:5 Update Verifiable credential
+    console.log(`\n* Statement updation`);
+
+    let updatedCredContent = await updateVcFromContent(
+        {
+            name: 'Bob',
+            age: 30,
+            id: '362734238278237',
+            country: 'India',
+            address: {
+                street: 'a',
+                pin: 54032,
+                location: {
+                    state: 'karnataka',
+                },
+            },
+        },
+        vc,
+    );
+
+    let updatedVc = await addProof(
+        updatedCredContent,
+        async (data) => ({
+            signature: await issuerKeys.assertionMethod.sign(data),
+            keyType: issuerKeys.assertionMethod.type,
+            keyUri: `${issuerDid.uri}${
+                issuerDid.assertionMethod![0].id
+            }` as Cord.DidResourceUri,
+        }),
+        issuerDid,
+        { spaceUri: space.uri, schemaUri, needSDR: true },
+    );
+
+    console.dir(updatedVc, {
+        depth: null,
+        colors: true,
+    });
+
+    const updatedStatement = await Cord.Statement.dispatchRegisterToChain(
+        updatedVc.proof[1],
+        issuerDid.uri,
+        authorIdentity,
+        space.authorization,
+        async ({ data }) => ({
+            signature: issuerKeys.authentication.sign(data),
+            keyType: issuerKeys.authentication.type,
+        }),
+    );
+
+    console.log(`✅ UpdatedStatement element registered - ${updatedStatement}`);
+
+    await verifyVC(updatedVc);
 }
 
 main()
