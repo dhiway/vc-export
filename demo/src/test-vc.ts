@@ -227,6 +227,10 @@ async function main() {
             },
         },
         vc,
+        {
+            spaceUri: space.uri,
+            schemaUri: schemaUri,
+        },
     );
 
     let updatedVc = await addProof(
