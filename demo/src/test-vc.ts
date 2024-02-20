@@ -212,6 +212,11 @@ async function main() {
     // Step:5 Update Verifiable credential
     console.log(`\n* Statement updation`);
 
+    // validUntil can be a field of choice , have set it to a month for this example
+    const oneMonthFromNow = new Date();
+    oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
+    const validUntil = oneMonthFromNow.toISOString();
+
     let updatedCredContent = await updateVcFromContent(
         {
             name: 'Bob',
@@ -227,10 +232,7 @@ async function main() {
             },
         },
         vc,
-        {
-            spaceUri: space.uri,
-            schemaUri: schemaUri,
-        },
+        validUntil,
     );
 
     let updatedVc = await addProof(

@@ -139,23 +139,16 @@ export function buildVcFromContent(
 export function updateVcFromContent(
     contents: IContents,
     vc: VerifiableCredential,
-    options: any,
+    validUntil: string | undefined,
 ) {
     Cord.Schema.verifyObjectAgainstSchema(
         contents,
         vc.credentialSchema as Cord.ISchema,
     );
 
-    const { validFrom, validUntil } = options;
-
     const now = new Date();
-    const issuanceDate = now.toISOString();
-    const validFromString = validFrom
-        ? validFrom.toISOString()
-        : now.toISOString();
-    const validUntilString = validUntil
-        ? validUntil.toISOString()
-        : new Date(new Date().setFullYear(now.getFullYear() + 1)).toISOString();
+    const validFromString = now.toISOString();
+    const validUntilString = validUntil ? validUntil : vc.validUntil;
 
     const credentialSubject = {
         ...contents,
@@ -169,7 +162,7 @@ export function updateVcFromContent(
         ],
         type: ['VerifiableCredential'],
         issuer: vc.issuer,
-        issuanceDate: issuanceDate,
+        issuanceDate: validFromString,
         credentialSubject,
         validFrom: validFromString,
         validUntil: validUntilString,
