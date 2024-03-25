@@ -47,7 +47,7 @@ async function main() {
         await createDid(authorIdentity);
     const issuerKeys = Cord.Utils.Keys.generateKeypairs(
         issuerMnemonic,
-        'ed25519',
+        'sr25519',
     );
     console.log(
         `🏛   Issuer (${issuerDid?.assertionMethod![0].type}): ${issuerDid.uri}`,
@@ -137,7 +137,7 @@ async function main() {
             }` as Cord.DidResourceUri,
         }),
         issuerDid,
-        { spaceUri: space.uri, schemaUri, needSDR: true },
+        { spaceUri: space.uri, schemaUri, needSDR: true, needStatementProof: true },
     );
     console.dir(vc, {
         depth: null,
@@ -161,7 +161,7 @@ async function main() {
 
     const holderKeys = Cord.Utils.Keys.generateKeypairs(
         holderMnemonic,
-        'ed25519',
+        'sr25519',
     );
 
     let vp = await makePresentation(
@@ -245,7 +245,7 @@ async function main() {
             }` as Cord.DidResourceUri,
         }),
         issuerDid,
-        { spaceUri: space.uri, schemaUri, needSDR: true },
+        { spaceUri: space.uri, schemaUri, needSDR: true, needStatementProof: true },
     );
 
     console.dir(updatedVc, {
