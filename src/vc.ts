@@ -65,25 +65,32 @@ export async function addProof(
 
     /* proof 1 - CordProof */
     /* contains check for revoke */
-    const statementEntry = Cord.Statement.buildFromProperties(
-        vc.credentialHash,
-        options.spaceUri!,
-        issuerDid.uri,
-        options.schemaUri ?? undefined,
-    );
-    let elem = statementEntry.elementUri.split(':');
-    let proof1: CordProof2024 = {
-        type: 'CordProof2024',
-        elementUri: statementEntry.elementUri,
-        spaceUri: statementEntry.spaceUri,
-        schemaUri: statementEntry.schemaUri,
-        creatorUri: issuerDid.uri,
-        digest: vc.credentialHash,
-        identifier: `${elem[0]}:${elem[1]}:${elem[2]}`,
-    };
-    vc.id = proof1.identifier;
+    let proof1: CordProof2024 | undefined = undefined;
+    if (options.needStatementProof) {
 
-    vc['proof'] = [proof0, proof1];
+        const statementEntry = Cord.Statement.buildFromProperties(
+            vc.credentialHash,
+            options.spaceUri!,
+            issuerDid.uri,
+            options.schemaUri ?? undefined,
+        );
+        let elem = statementEntry.elementUri.split(':');
+        proof1 = {
+            type: 'CordProof2024',
+            elementUri: statementEntry.elementUri,
+            spaceUri: statementEntry.spaceUri,
+            schemaUri: statementEntry.schemaUri,
+            creatorUri: issuerDid.uri,
+            digest: vc.credentialHash,
+            identifier: `${elem[0]}:${elem[1]}:${elem[2]}`,
+        };
+
+        vc.id = proof1.identifier;
+    }
+
+
+    vc['proof'] = [proof0];
+    if (proof1) vc.proof.push(proof1);
     if (proof2) vc.proof.push(proof2);
 
     return vc;
