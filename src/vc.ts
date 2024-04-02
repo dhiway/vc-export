@@ -3,6 +3,28 @@ import dayjs from 'moment';
 
 import * as Cord from '@cord.network/sdk';
 
+import { verifyDataStructure } from '@cord.network/statement';
+
+import {
+    uriToIdentifier,
+    buildStatementUri,
+} from '@cord.network/identifier'
+
+import * as Did from '@cord.network/did'
+
+import {
+    HexString,
+    DidUri,
+    SpaceUri,
+    SchemaUri,
+    StatementUri,
+    IStatementEntry,
+    H256,
+    Bytes,
+    AccountId,
+    blake2AsHex,
+} from '@cord.network/types';
+
 import {
     VerifiableCredential,
     VerifiablePresentation,
@@ -14,6 +36,52 @@ import {
 } from './types';
 
 import { hashContents, calculateVCHash } from './utils';
+
+export function getUriForStatement(
+    digest: HexString,
+    spaceUri: SpaceUri,
+    creatorUri: DidUri,
+  ): StatementUri {
+    const api = Cord.ConfigService.get('api')
+
+    const scaleEncodedSchema = api.createType<H256>('H256', digest).toU8a()
+    const scaleEncodedSpace = api
+      .createType<Bytes>('Bytes', uriToIdentifier(spaceUri))
+      .toU8a()
+    const scaleEncodedCreator = api
+      .createType<AccountId>('AccountId', Did.toChain(creatorUri))
+      .toU8a()
+    const IdDigest = blake2AsHex(
+      Uint8Array.from([
+        ...scaleEncodedSchema,
+        ...scaleEncodedSpace,
+        ...scaleEncodedCreator,
+      ])
+    )
+    const statementUri = buildStatementUri(IdDigest, digest)
+  
+    return statementUri
+}
+
+export function buildCordProof(
+    digest: HexString,
+    spaceUri: SpaceUri,
+    creatorUri: DidUri,
+    schemaUri?: SchemaUri
+  ): IStatementEntry {
+    const stmtUri = getUriForStatement(digest, spaceUri, creatorUri)
+  
+    const statement: IStatementEntry = {
+        elementUri: stmtUri,
+        digest,
+        creatorUri,
+        spaceUri,
+        schemaUri: schemaUri || undefined,
+    }
+
+    verifyDataStructure(statement)
+    return statement
+}
 
 /* TODO: not sure why, the sign() of the key is giving the same output if treated as a function,
    but when compared with output of locally created sign, they are different */
@@ -68,7 +136,8 @@ export async function addProof(
     let proof1: CordProof2024 | undefined = undefined;
     if (options.needStatementProof) {
 
-        const statementEntry = Cord.Statement.buildFromProperties(
+        // SDK Method Name: Cord.statement.buildFromProperties //
+        const statementEntry = buildCordProof(
             vc.credentialHash,
             options.spaceUri!,
             issuerDid.uri,
@@ -87,7 +156,6 @@ export async function addProof(
 
         vc.id = proof1.identifier;
     }
-
 
     vc['proof'] = [proof0];
     if (proof1) vc.proof.push(proof1);
