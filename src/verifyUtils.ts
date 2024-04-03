@@ -3,6 +3,18 @@ import { base58Decode } from '@polkadot/util-crypto';
 import * as Cord from '@cord.network/sdk';
 
 import {
+    IStatementDetails,
+    Option,
+    AccountId32,
+    StatementUri,
+    IStatementStatus,
+    HexString,
+    DidUri,
+    SpaceUri,
+    SchemaUri
+} from '@cord.network/types';
+
+import {
     VerifiableCredential,
     VerifiablePresentation,
     IContents,
@@ -12,7 +24,171 @@ import {
     CordProof2024,
 } from './types';
 
+import * as Did from '@cord.network/did'
+
+import { decodeStatementDetailsfromChain } from '@cord.network/statement';
+
+import {uriToIdentifier, uriToStatementIdAndDigest, identifierToUri} from '@cord.network/identifier';
+
+import { SDKErrors } from '@cord.network/utils';
+
 import { makeStatementsJsonLD, calculateVCHash } from './utils';
+
+export async function getDetailsfromChain(
+    identifier: string
+  ): Promise<IStatementDetails | null> {
+    const api = Cord.ConfigService.get('api')
+    const statementId = uriToIdentifier(identifier)
+  
+    const statementEntry = await api.query.statement.statements(statementId)
+    const decodedDetails = decodeStatementDetailsfromChain(
+      statementEntry,
+      identifier
+    )
+    if (decodedDetails === null) {
+      throw new SDKErrors.StatementError(
+        `There is no statement with the provided ID "${statementId}" present on the chain.`
+      )
+    }
+  
+    return decodedDetails
+  }
+
+export async function fetchStatementDetailsfromChain(
+    stmtUri: StatementUri
+  ): Promise<IStatementStatus | null> {
+    const api = Cord.ConfigService.get('api')
+    const { identifier, digest } = uriToStatementIdAndDigest(stmtUri)
+  
+    const statementDetails = await getDetailsfromChain(identifier)
+    if (statementDetails === null) {
+      throw new SDKErrors.StatementError(
+        `There is no statement with the provided ID "${identifier}" present on the chain.`
+      )
+    }
+  
+    const schemaUri =
+      statementDetails.schemaUri !== undefined
+        ? identifierToUri(statementDetails.schemaUri)
+        : undefined
+  
+    const spaceUri = identifierToUri(statementDetails.spaceUri)
+  
+    const elementStatusDetails = await api.query.statement.entries(
+      identifier,
+      digest
+    )
+  
+    if (elementStatusDetails === null) {
+      throw new SDKErrors.StatementError(
+        `There is no entry with the provided ID "${identifier}" and digest "${digest}" present on the chain.`
+      )
+    }
+  
+    const elementChainCreator = (
+      elementStatusDetails as Option<AccountId32>
+    ).unwrap()
+    const elementCreator = Did.fromChain(elementChainCreator)
+  
+    const elementStatus = await api.query.statement.revocationList(
+      identifier,
+      digest
+    )
+  
+    let revoked = false
+    if (!elementStatus.isEmpty) {
+      const encodedStatus = elementStatus.unwrap()
+      revoked = encodedStatus.revoked.valueOf()
+    }
+  
+    const statementStatus: IStatementStatus = {
+      uri: statementDetails.uri,
+      digest,
+      spaceUri,
+      creatorUri: elementCreator,
+      schemaUri,
+      revoked,
+    }
+  
+    return statementStatus
+  }
+  
+export async function verifyAgainstProperties(
+    stmtUri: StatementUri,
+    digest: HexString,
+    creator?: DidUri,
+    spaceuri?: SpaceUri,
+    schemaUri?: SchemaUri
+  ): Promise<{ isValid: boolean; message: string }> {
+    try {
+      const statementStatus = await fetchStatementDetailsfromChain(stmtUri)
+  
+      if (!statementStatus) {
+        return {
+          isValid: false,
+          message: `Statement details for "${digest}" not found.`,
+        }
+      }
+  
+      if (digest !== statementStatus.digest) {
+        return {
+          isValid: false,
+          message: 'Digest does not match with Statement Digest.',
+        }
+      }
+  
+      if (statementStatus?.revoked) {
+        return {
+          isValid: false,
+          message: `Statement "${stmtUri}" Revoked.`,
+        }
+      }
+  
+      if (creator) {
+        if (creator !== statementStatus.creatorUri) {
+          return {
+            isValid: false,
+            message: 'Statement and Digest creator does not match.',
+          }
+        }
+      }
+  
+      if (spaceuri) {
+        if (spaceuri !== statementStatus.spaceUri) {
+          return {
+            isValid: false,
+            message: 'Statement and Digest space details does not match.',
+          }
+        }
+      }
+  
+      if (schemaUri) {
+        if (schemaUri !== statementStatus.schemaUri) {
+          return {
+            isValid: false,
+            message: 'Statement and Digest schema details does not match.',
+          }
+        }
+      }
+  
+      return {
+        isValid: true,
+        message:
+          'Digest properties provided are valid and matches the statement details.',
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        return {
+          isValid: false,
+          message: `Error verifying properties: ${error}`,
+        }
+      }
+      return {
+        isValid: false,
+        message: 'An unknown error occurred while verifying the properties.',
+      }
+    }
+  }
 
 export function verifyDisclosedAttributes(
     content: IContents,
@@ -92,8 +268,9 @@ export async function verifyProofElement(
         ) {
             throw 'elementUri mismatch';
         }
-
-        const verificationResult = await Cord.Statement.verifyAgainstProperties(
+        
+        /* SDK Method Name: Cord.Statament.verifyAgainstProperties */
+        const verificationResult = await verifyAgainstProperties(
             obj.elementUri,
             obj.digest,
             obj.creatorUri,
