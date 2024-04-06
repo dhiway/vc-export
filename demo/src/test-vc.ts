@@ -253,7 +253,7 @@ async function main() {
         colors: true,
     });
 
-    const updatedStatement = await Cord.Statement.dispatchRegisterToChain(
+    const updatedStatement = await Cord.Statement.dispatchUpdateToChain(
         updatedVc.proof[1],
         issuerDid.uri,
         authorIdentity,
