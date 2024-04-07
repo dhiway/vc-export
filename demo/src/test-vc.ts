@@ -138,7 +138,12 @@ async function main() {
             }` as Cord.DidResourceUri,
         }),
         issuerDid,
-        { spaceUri: space.uri, schemaUri, needSDR: true, needStatementProof: true },
+        {
+            spaceUri: space.uri,
+            schemaUri,
+            needSDR: true,
+            needStatementProof: true,
+        },
     );
     console.dir(vc, {
         depth: null,
@@ -247,7 +252,12 @@ async function main() {
             }` as Cord.DidResourceUri,
         }),
         issuerDid,
-        { spaceUri: space.uri, schemaUri, needSDR: true, needStatementProof: true },
+        {
+            spaceUri: space.uri,
+            schemaUri,
+            needSDR: true,
+            needStatementProof: true,
+        },
     );
 
     console.dir(updatedVc, {

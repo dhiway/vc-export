@@ -5,12 +5,9 @@ import * as Cord from '@cord.network/sdk';
 
 import { verifyDataStructure } from '@cord.network/statement';
 
-import {
-    uriToIdentifier,
-    buildStatementUri,
-} from '@cord.network/identifier'
+import { uriToIdentifier, buildStatementUri } from '@cord.network/identifier';
 
-import * as Did from '@cord.network/did'
+import * as Did from '@cord.network/did';
 
 import {
     HexString,
@@ -41,46 +38,46 @@ export function getUriForStatement(
     digest: HexString,
     spaceUri: SpaceUri,
     creatorUri: DidUri,
-  ): StatementUri {
-    const api = Cord.ConfigService.get('api')
+): StatementUri {
+    const api = Cord.ConfigService.get('api');
 
-    const scaleEncodedSchema = api.createType<H256>('H256', digest).toU8a()
+    const scaleEncodedSchema = api.createType<H256>('H256', digest).toU8a();
     const scaleEncodedSpace = api
-      .createType<Bytes>('Bytes', uriToIdentifier(spaceUri))
-      .toU8a()
+        .createType<Bytes>('Bytes', uriToIdentifier(spaceUri))
+        .toU8a();
     const scaleEncodedCreator = api
-      .createType<AccountId>('AccountId', Did.toChain(creatorUri))
-      .toU8a()
+        .createType<AccountId>('AccountId', Did.toChain(creatorUri))
+        .toU8a();
     const IdDigest = blake2AsHex(
-      Uint8Array.from([
-        ...scaleEncodedSchema,
-        ...scaleEncodedSpace,
-        ...scaleEncodedCreator,
-      ])
-    )
-    const statementUri = buildStatementUri(IdDigest, digest)
-  
-    return statementUri
+        Uint8Array.from([
+            ...scaleEncodedSchema,
+            ...scaleEncodedSpace,
+            ...scaleEncodedCreator,
+        ]),
+    );
+    const statementUri = buildStatementUri(IdDigest, digest);
+
+    return statementUri;
 }
 
 export function buildCordProof(
     digest: HexString,
     spaceUri: SpaceUri,
     creatorUri: DidUri,
-    schemaUri?: SchemaUri
-  ): IStatementEntry {
-    const stmtUri = getUriForStatement(digest, spaceUri, creatorUri)
-  
+    schemaUri?: SchemaUri,
+): IStatementEntry {
+    const stmtUri = getUriForStatement(digest, spaceUri, creatorUri);
+
     const statement: IStatementEntry = {
         elementUri: stmtUri,
         digest,
         creatorUri,
         spaceUri,
         schemaUri: schemaUri || undefined,
-    }
+    };
 
-    verifyDataStructure(statement)
-    return statement
+    verifyDataStructure(statement);
+    return statement;
 }
 
 export function updateBuildCordProof(
@@ -88,18 +85,18 @@ export function updateBuildCordProof(
     digest: HexString,
     spaceUri: SpaceUri,
     creatorUri: DidUri,
-    schemaUri?: SchemaUri
-  ): IStatementEntry {
-    const statementUri = Cord.Identifier.updateStatementUri(stmtUri, digest)
+    schemaUri?: SchemaUri,
+): IStatementEntry {
+    const statementUri = Cord.Identifier.updateStatementUri(stmtUri, digest);
 
     const statement = {
         elementUri: statementUri,
         digest,
         creatorUri,
         spaceUri,
-      }
-      verifyDataStructure(statement)
-      return statement
+    };
+    verifyDataStructure(statement);
+    return statement;
 }
 
 /* TODO: not sure why, the sign() of the key is giving the same output if treated as a function,
@@ -154,8 +151,7 @@ export async function addProof(
     /* contains check for revoke */
     let proof1: CordProof2024 | undefined = undefined;
     if (options.needStatementProof) {
-
-        // SDK Method Name: Cord.statement.buildFromProperties //
+        // SDK Method Name: Cord.statement.buildFromUpdateProperties //
         const statementEntry = buildCordProof(
             vc.credentialHash,
             options.spaceUri!,
@@ -234,7 +230,6 @@ export async function updateAddProof(
     /* contains check for revoke */
     let proof1: CordProof2024 | undefined = undefined;
     if (options.needStatementProof) {
-
         // SDK Method Name: Cord.statement.buildFromProperties //
         const statementEntry = updateBuildCordProof(
             oldStmt,
