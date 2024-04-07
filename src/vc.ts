@@ -83,6 +83,25 @@ export function buildCordProof(
     return statement
 }
 
+export function updateBuildCordProof(
+    stmtUri: StatementUri,
+    digest: HexString,
+    spaceUri: SpaceUri,
+    creatorUri: DidUri,
+    schemaUri?: SchemaUri
+  ): IStatementEntry {
+    const statementUri = Cord.Identifier.updateStatementUri(stmtUri, digest)
+
+    const statement = {
+        elementUri: statementUri,
+        digest,
+        creatorUri,
+        spaceUri,
+      }
+      verifyDataStructure(statement)
+      return statement
+}
+
 /* TODO: not sure why, the sign() of the key is giving the same output if treated as a function,
    but when compared with output of locally created sign, they are different */
 export async function addProof(
@@ -138,6 +157,87 @@ export async function addProof(
 
         // SDK Method Name: Cord.statement.buildFromProperties //
         const statementEntry = buildCordProof(
+            vc.credentialHash,
+            options.spaceUri!,
+            issuerDid.uri,
+            options.schemaUri ?? undefined,
+        );
+        let elem = statementEntry.elementUri.split(':');
+        proof1 = {
+            type: 'CordProof2024',
+            elementUri: statementEntry.elementUri,
+            spaceUri: statementEntry.spaceUri,
+            schemaUri: statementEntry.schemaUri,
+            creatorUri: issuerDid.uri,
+            digest: vc.credentialHash,
+            identifier: `${elem[0]}:${elem[1]}:${elem[2]}`,
+        };
+
+        vc.id = proof1.identifier;
+    }
+
+    vc['proof'] = [proof0];
+    if (proof1) vc.proof.push(proof1);
+    if (proof2) vc.proof.push(proof2);
+
+    return vc;
+}
+
+export async function updateAddProof(
+    oldStmt: StatementUri,
+    vc: VerifiableCredential,
+    callbackFn: SignCallback,
+    issuerDid: Cord.DidDocument,
+    options: any,
+) {
+    const now = dayjs();
+    let credHash: Cord.HexString = calculateVCHash(vc, undefined);
+
+    /* TODO: Bring selective disclosure here */
+    let proof2: CordSDRProof2024 | undefined = undefined;
+    if (options.needSDR) {
+        let contents = { ...vc.credentialSubject };
+        delete contents.id;
+
+        let hashes = hashContents(contents, options.schemaUri);
+
+        /* proof 2 - ConentNonces for selective disclosure */
+        /* This will enable the selective disclosure. This may not be compatible with the normal VC */
+        /* This also would change the 'credentialSubject' */
+        proof2 = {
+            type: 'CordSDRProof2024',
+            defaultDigest: credHash,
+            hashes: hashes.hashes,
+            nonceMap: hashes.nonceMap,
+        };
+        let vocabulary = `${options.schemaUri}#`;
+        vc.credentialSubject['@context'] = { vocab: vocabulary };
+        credHash = calculateVCHash(vc, hashes.hashes);
+    }
+    vc.credentialHash = credHash;
+
+    /* proof 0 - Ed25519 */
+    /* validates ownership by checking the signature against the DID */
+
+    let cbData = await callbackFn(vc.credentialHash);
+
+    let proof0: ED25519Proof = {
+        type: 'Ed25519Signature2020',
+        created: now.toDate().toString(),
+        proofPurpose: cbData.keyType,
+        verificationMethod: cbData.keyUri,
+        proofValue: 'z' + base58Encode(cbData.signature),
+        challenge: undefined,
+    };
+
+    /* proof 1 - CordProof */
+    /* contains check for revoke */
+    let proof1: CordProof2024 | undefined = undefined;
+    if (options.needStatementProof) {
+
+        // SDK Method Name: Cord.statement.buildFromProperties //
+        const statementEntry = updateBuildCordProof(
+            oldStmt,
             vc.credentialHash,
             options.spaceUri!,
             issuerDid.uri,

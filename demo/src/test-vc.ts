@@ -10,6 +10,7 @@ import {
     addProof,
     buildVcFromContent,
     makePresentation,
+    updateAddProof,
     updateVcFromContent,
 } from '../../src/vc';
 
@@ -235,7 +236,8 @@ async function main() {
         validUntil,
     );
 
-    let updatedVc = await addProof(
+    let updatedVc = await updateAddProof(
+        vc.proof[1].elementUri,
         updatedCredContent,
         async (data) => ({
             signature: await issuerKeys.assertionMethod.sign(data),
