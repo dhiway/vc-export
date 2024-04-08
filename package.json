@@ -39,7 +39,7 @@
         "typescript": "^4.8.3"
     },
     "dependencies": {
-        "@cord.network/sdk": "0.9.3-1rc4",
+        "@cord.network/sdk": "0.9.3-1rc7",
         "moment": "^2.29.4"
     }
 }
