@@ -151,7 +151,7 @@ export async function addProof(
     /* contains check for revoke */
     let proof1: CordProof2024 | undefined = undefined;
     if (options.needStatementProof) {
-        // SDK Method Name: Cord.statement.buildFromUpdateProperties //
+        // SDK Method Name: Cord.statement.buildFromProperties //
         const statementEntry = buildCordProof(
             vc.credentialHash,
             options.spaceUri!,
@@ -230,7 +230,7 @@ export async function updateAddProof(
     /* contains check for revoke */
     let proof1: CordProof2024 | undefined = undefined;
     if (options.needStatementProof) {
-        // SDK Method Name: Cord.statement.buildFromProperties //
+        // SDK Method Name: Cord.statement.buildFromUpdateProperties //
         const statementEntry = updateBuildCordProof(
             oldStmt,
             vc.credentialHash,
