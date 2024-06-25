@@ -18,16 +18,19 @@ export interface ED25519Proof extends VCProofType {
     verificationMethod: string | Cord.DidUri;
     proofValue: string;
     challenge: string | undefined;
+    genesisHash: string;
 }
 
 export interface CordProof2024 extends VCProofType, Cord.IStatementEntry {
     identifier: string; //Cord.StatementUri
+    genesisHash: string;
 }
 
 export interface CordSDRProof2024 extends VCProofType {
     defaultDigest: string;
     hashes: Array<Cord.HexString>;
     nonceMap: Record<string, string>;
+    genesisHash: string;
 }
 
 export type VCProof = CordSDRProof2024 | ED25519Proof | CordProof2024;

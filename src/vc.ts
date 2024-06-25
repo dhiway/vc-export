@@ -20,6 +20,7 @@ import {
     Bytes,
     AccountId,
     blake2AsHex,
+    ApiPromise,
 } from '@cord.network/types';
 
 import {
@@ -105,11 +106,13 @@ export async function addProof(
     vc: VerifiableCredential,
     callbackFn: SignCallback,
     issuerDid: Cord.DidDocument,
+    network: ApiPromise,
     options: any,
 ) {
     const now = dayjs();
     let credHash: Cord.HexString = calculateVCHash(vc, undefined);
-
+    let genesisHash: string = Cord.getGenesisHash(network);
+    
     /* TODO: Bring selective disclosure here */
     let proof2: CordSDRProof2024 | undefined = undefined;
     if (options.needSDR) {
@@ -126,6 +129,7 @@ export async function addProof(
             defaultDigest: credHash,
             hashes: hashes.hashes,
             nonceMap: hashes.nonceMap,
+            genesisHash: genesisHash,
         };
         let vocabulary = `${options.schemaUri}#`;
         vc.credentialSubject['@context'] = { vocab: vocabulary };
@@ -145,6 +149,7 @@ export async function addProof(
         verificationMethod: cbData.keyUri,
         proofValue: 'z' + base58Encode(cbData.signature),
         challenge: undefined,
+        genesisHash: genesisHash
     };
 
     /* proof 1 - CordProof */
@@ -167,6 +172,7 @@ export async function addProof(
             creatorUri: issuerDid.uri,
             digest: vc.credentialHash,
             identifier: `${elem[0]}:${elem[1]}:${elem[2]}`,
+            genesisHash: genesisHash
         };
 
         vc.id = proof1.identifier;
@@ -184,10 +190,12 @@ export async function updateAddProof(
     vc: VerifiableCredential,
     callbackFn: SignCallback,
     issuerDid: Cord.DidDocument,
+    network: ApiPromise,
     options: any,
 ) {
     const now = dayjs();
     let credHash: Cord.HexString = calculateVCHash(vc, undefined);
+    let genesisHash: string = Cord.getGenesisHash(network);
 
     /* TODO: Bring selective disclosure here */
     let proof2: CordSDRProof2024 | undefined = undefined;
@@ -205,6 +213,7 @@ export async function updateAddProof(
             defaultDigest: credHash,
             hashes: hashes.hashes,
             nonceMap: hashes.nonceMap,
+            genesisHash: genesisHash,
         };
         let vocabulary = `${options.schemaUri}#`;
         vc.credentialSubject['@context'] = { vocab: vocabulary };
@@ -224,6 +233,7 @@ export async function updateAddProof(
         verificationMethod: cbData.keyUri,
         proofValue: 'z' + base58Encode(cbData.signature),
         challenge: undefined,
+        genesisHash: genesisHash,
     };
 
     /* proof 1 - CordProof */
@@ -247,6 +257,7 @@ export async function updateAddProof(
             creatorUri: issuerDid.uri,
             digest: vc.credentialHash,
             identifier: `${elem[0]}:${elem[1]}:${elem[2]}`,
+            genesisHash: genesisHash,
         };
 
         vc.id = proof1.identifier;
@@ -350,10 +361,12 @@ export async function makePresentation(
     holder: Cord.DidDocument,
     callbackFn: SignCallback,
     challenge: string,
+    network: ApiPromise,
     options: any,
 ) {
     const now = dayjs();
     let copiedVcs = vcs;
+    let genesisHash = Cord.getGenesisHash(network);
     if (options?.needSDR) {
         copiedVcs = [];
 
@@ -392,6 +405,7 @@ export async function makePresentation(
         proofPurpose: cbData.keyType,
         verificationMethod: cbData.keyUri,
         proofValue: 'z' + base58Encode(cbData.signature),
+        genesisHash: genesisHash,
     };
     let vp: VerifiablePresentation = {
         '@context': [

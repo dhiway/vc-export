@@ -1,5 +1,7 @@
 import * as Cord from '@cord.network/sdk';
 
+import { ApiPromise } from '@cord.network/types';
+
 import { CordProof2024 } from './types';
 
 /*
@@ -17,8 +19,10 @@ function hash(value: string) {
 export async function getCordProofForDigest(
     digest: Cord.HexString,
     issuerDid: Cord.DidDocument,
+    network: ApiPromise,
     options: any,
 ) {
+    const genesisHash = Cord.getGenesisHash(network);
     const statementEntry = Cord.Statement.buildFromProperties(
         digest,
         options.spaceUri!,
@@ -33,6 +37,7 @@ export async function getCordProofForDigest(
         creatorUri: issuerDid.uri,
         digest: digest,
         identifier: `${elem[0]}:${elem[1]}:${elem[2]}`,
+        genesisHash: genesisHash,
     };
 
     return proof;
