@@ -22,7 +22,7 @@ export async function getCordProofForDigest(
     network: ApiPromise,
     options: any,
 ) {
-    const genesisHash = Cord.getGenesisHash(network);
+    const genesisHash: string = await Cord.getGenesisHash(network);
     const statementEntry = Cord.Statement.buildFromProperties(
         digest,
         options.spaceUri!,

@@ -111,7 +111,7 @@ export async function addProof(
 ) {
     const now = dayjs();
     let credHash: Cord.HexString = calculateVCHash(vc, undefined);
-    let genesisHash: string = Cord.getGenesisHash(network);
+    let genesisHash: string = await Cord.getGenesisHash(network);
     
     /* TODO: Bring selective disclosure here */
     let proof2: CordSDRProof2024 | undefined = undefined;
@@ -149,7 +149,6 @@ export async function addProof(
         verificationMethod: cbData.keyUri,
         proofValue: 'z' + base58Encode(cbData.signature),
         challenge: undefined,
-        genesisHash: genesisHash
     };
 
     /* proof 1 - CordProof */
@@ -195,7 +194,7 @@ export async function updateAddProof(
 ) {
     const now = dayjs();
     let credHash: Cord.HexString = calculateVCHash(vc, undefined);
-    let genesisHash: string = Cord.getGenesisHash(network);
+    let genesisHash: string = await Cord.getGenesisHash(network);
 
     /* TODO: Bring selective disclosure here */
     let proof2: CordSDRProof2024 | undefined = undefined;
@@ -233,7 +232,6 @@ export async function updateAddProof(
         verificationMethod: cbData.keyUri,
         proofValue: 'z' + base58Encode(cbData.signature),
         challenge: undefined,
-        genesisHash: genesisHash,
     };
 
     /* proof 1 - CordProof */
@@ -366,7 +364,6 @@ export async function makePresentation(
 ) {
     const now = dayjs();
     let copiedVcs = vcs;
-    let genesisHash = Cord.getGenesisHash(network);
     if (options?.needSDR) {
         copiedVcs = [];
 
@@ -405,7 +402,6 @@ export async function makePresentation(
         proofPurpose: cbData.keyType,
         verificationMethod: cbData.keyUri,
         proofValue: 'z' + base58Encode(cbData.signature),
-        genesisHash: genesisHash,
     };
     let vp: VerifiablePresentation = {
         '@context': [

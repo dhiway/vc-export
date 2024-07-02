@@ -18,7 +18,6 @@ export interface ED25519Proof extends VCProofType {
     verificationMethod: string | Cord.DidUri;
     proofValue: string;
     challenge: string | undefined;
-    genesisHash: string;
 }
 
 export interface CordProof2024 extends VCProofType, Cord.IStatementEntry {
