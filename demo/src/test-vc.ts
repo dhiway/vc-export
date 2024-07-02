@@ -30,6 +30,8 @@ async function main() {
     Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK });
     await Cord.connect(networkAddress as string);
 
+    const api = Cord.ConfigService.get('api');
+
     // Step 1: Setup Membership
     // Setup transaction author account - CORD Account.
 
@@ -138,6 +140,7 @@ async function main() {
             }` as Cord.DidResourceUri,
         }),
         issuerDid,
+        api,
         {
             spaceUri: space.uri,
             schemaUri,
@@ -181,6 +184,7 @@ async function main() {
             }` as Cord.DidResourceUri,
         }),
         getChallenge(),
+        api,
         {
             needSDR: true,
             selectedFields: ['age', 'address'],
@@ -196,7 +200,7 @@ async function main() {
     hashFn.update(content);
     let digest = `0x${hashFn.digest('hex')}`;
 
-    const docProof = await getCordProofForDigest(digest, issuerDid, {
+    const docProof = await getCordProofForDigest(digest, issuerDid, api, {
         spaceUri: space.uri,
     });
     const statement1 = await Cord.Statement.dispatchRegisterToChain(
@@ -252,6 +256,7 @@ async function main() {
             }` as Cord.DidResourceUri,
         }),
         issuerDid,
+        api,
         {
             spaceUri: space.uri,
             schemaUri,
