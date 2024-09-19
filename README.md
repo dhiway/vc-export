@@ -9,13 +9,13 @@ Test the library by `npx tsx demo/src/test-vc.ts` while having a cord setup read
 NPM:
 
 ```
-npm install @cord.network/vc
+npm install @cord.network/vc-export
 ```
 
 YARN:
 
 ```
-yarn add @cord.network/vc
+yarn add @cord.network/vc-export
 ```
 
 ## Contents
