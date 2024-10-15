@@ -1,6 +1,4 @@
 import * as Cord from '@cord.network/sdk';
-import { createDid } from './generateDid';
-import { randomUUID } from 'crypto';
 import 'dotenv/config';
 
 import fs from 'fs';
@@ -43,11 +41,11 @@ async function main() {
 
     // Create Holder DID
     const { mnemonic: holderMnemonic, document: holderDid } =
-        await createDid(authorIdentity);
+        await Cord.Did.createDid(authorIdentity);
 
     // Create issuer DID
     const { mnemonic: issuerMnemonic, document: issuerDid } =
-        await createDid(authorIdentity);
+        await Cord.Did.createDid(authorIdentity);
     const issuerKeys = Cord.Utils.Keys.generateKeypairs(
         issuerMnemonic,
         'sr25519',
@@ -284,9 +282,6 @@ async function main() {
     console.log(`✅ UpdatedStatement element registered - ${updatedStatement}`);
 
     await verifyVC(updatedVc);
-
-    console.log("helllo issuer", issuerDid);
-    console.log("helllo issuerkeys", issuerKeys);
 }
 
 main()

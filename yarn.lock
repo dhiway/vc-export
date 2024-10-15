@@ -203,6 +203,7 @@
   version "0.9.3-1rc21"
   resolved "https://registry.yarnpkg.com/@cord.network/types/-/types-0.9.3-1rc21.tgz#79d6e0d1a9bfff9b897b9bb035d7b287ee69da90"
   integrity sha512-nyXQjqJU9JrPDpvWd3gDzWLRV9+sZ6je4RQPqRGhFOjCeBuDhvPZfDhZ8qVT7+/sMH+0M3csK66Q88S71g+7Ew==
+
   dependencies:
     "@polkadot/api" "^10.12.2"
     "@polkadot/keyring" "^12.6.2"
