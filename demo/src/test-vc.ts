@@ -284,6 +284,9 @@ async function main() {
     console.log(`✅ UpdatedStatement element registered - ${updatedStatement}`);
 
     await verifyVC(updatedVc);
+
+    console.log("helllo issuer", issuerDid);
+    console.log("helllo issuerkeys", issuerKeys);
 }
 
 main()

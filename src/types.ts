@@ -1,4 +1,5 @@
 import * as Cord from '@cord.network/sdk';
+import { RegistryUri, SchemaUri } from '@cord.network/sdk';
 
 type ContentPrimitives = string | number | boolean | undefined;
 export interface IContents {
@@ -15,13 +16,21 @@ export interface VCProofType {
 export interface ED25519Proof extends VCProofType {
     created: string;
     proofPurpose: string;
-    verificationMethod: string | Cord.DidUri;
+    // TODO: Disable keyUri for account based op.
+    verificationMethod?: string | Cord.DidUri;
     proofValue: string;
     challenge: string | undefined;
 }
 
 export interface CordProof2024 extends VCProofType, Cord.IStatementEntry {
     identifier: string; //Cord.StatementUri
+    genesisHash: string;
+}
+
+export interface CordProof2024B extends VCProofType, Cord.IRegistryEntry {
+    registryUri: RegistryUri;
+    schemaUri?: SchemaUri;
+    identifier: string; //Cord.RegistryEntry.uri
     genesisHash: string;
 }
 
@@ -32,7 +41,7 @@ export interface CordSDRProof2024 extends VCProofType {
     genesisHash: string;
 }
 
-export type VCProof = CordSDRProof2024 | ED25519Proof | CordProof2024;
+export type VCProof = CordSDRProof2024 | ED25519Proof | CordProof2024 | CordProof2024B;
 
 /* TODO: make it more clear, and better - followup PRs */
 export interface VerifiableCredential {
@@ -61,4 +70,9 @@ export interface VerifiablePresentation {
 /**
  * A callback function to sign data.
  */
+// TODO: Recheck below
 export type SignCallback = (signData: any) => Promise<Cord.SignResponseData>;
+export type SignCallbackB = (signData: any) => Promise<{
+    signature: Uint8Array; // Keep the signature
+    keyType: string;        // Keep the key type (e.g., ed25519, sr25519, etc.)
+}>;
