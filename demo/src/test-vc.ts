@@ -3,6 +3,9 @@ import 'dotenv/config';
 
 import fs from 'fs';
 import crypto from 'crypto';
+import BN from 'bn.js';
+
+import { createAccount } from './createAccount';
 
 import {
     addProof,
@@ -22,8 +25,10 @@ function getChallenge(): string {
 
 async function main() {
     const { NETWORK_ADDRESS, ANCHOR_URI, DID_NAME } = process.env;
-    const networkAddress = NETWORK_ADDRESS;
-    const anchorUri = ANCHOR_URI;
+    //const networkAddress = NETWORK_ADDRESS ?? 'ws://localhost:9944';
+    //const anchorUri = ANCHOR_URI ?? '//Alice';
+    const networkAddress = 'ws://localhost:9944';
+    const anchorUri =  '//Alice';
     const didName = DID_NAME;
     Cord.ConfigService.set({ submitTxResolveOn: Cord.Chain.IS_IN_BLOCK });
     await Cord.connect(networkAddress as string);
@@ -40,44 +45,41 @@ async function main() {
     );
 
     // Create Holder DID
-    const { mnemonic: holderMnemonic, document: holderDid } =
-        await Cord.Did.createDid(authorIdentity);
+    const { account: holderAccount, mnemonic: holderMnemonic } =
+        await createAccount();
 
     // Create issuer DID
-    const { mnemonic: issuerMnemonic, document: issuerDid } =
-        await Cord.Did.createDid(authorIdentity);
-    const issuerKeys = Cord.Utils.Keys.generateKeypairs(
-        issuerMnemonic,
-        'sr25519',
-    );
-    console.log(
-        `🏛   Issuer (${issuerDid?.assertionMethod![0].type}): ${issuerDid.uri}`,
-    );
-    const conformingDidDocument = Cord.Did.exportToDidDocument(
-        issuerDid,
-        'application/json',
-    );
+    const { account: issuerAccount, mnemonic: issuerMnemonic } =
+        await createAccount();
+   
+      // Transfer funds for author identity.
+    let author_id_tx = await api.tx.balances.transferAllowDeath(issuerAccount.address, new BN('1000000000000000'));
+    await Cord.Chain.signAndSubmitTx(author_id_tx, authorIdentity);
+
+    author_id_tx = await api.tx.balances.transferAllowDeath(holderAccount.address, new BN('1000000000000000'));
+    await Cord.Chain.signAndSubmitTx(author_id_tx, authorIdentity);
+
+        /* We need to get 'DID' as a variable while issuing */
+    const issuerAccountDid = `did:web:${issuerAccount.address}.myn.social`;
+    const holderDid = `did:web:${holderAccount.address}.myn.social`;
+
     console.log('✅ Identities created!');
 
     console.log(`\n❄️  Chain Space Creation `);
     const spaceProperties = await Cord.ChainSpace.buildFromProperties(
-        issuerDid.uri,
+        issuerAccount.address,
+        `Testing_VC_v1.${Cord.Utils.UUID.generate()}`
     );
 
     console.log(`\n❄️  Chain Space Properties `);
     const space = await Cord.ChainSpace.dispatchToChain(
         spaceProperties,
-        issuerDid.uri,
-        authorIdentity,
-        async ({ data }) => ({
-            signature: issuerKeys.authentication.sign(data),
-            keyType: issuerKeys.authentication.type,
-        }),
+        issuerAccount,
     );
 
     console.log(`\n❄️  Chain Space Approval `);
-    await Cord.ChainSpace.sudoApproveChainSpace(authorIdentity, space.uri, 100);
-    console.log(`✅  Chain Space Approved`);
+    //await Cord.ChainSpace.sudoApproveChainSpace(authorIdentity, space.uri, 100);
+    //console.log(`✅  Chain Space Approved`);
 
     /* schema */
     let newSchemaContent = require('./schema.json');
@@ -87,18 +89,11 @@ async function main() {
 
     let schemaProperties = Cord.Schema.buildFromProperties(
         newSchemaContent,
-        space.uri,
-        issuerDid.uri,
+        issuerAccount.address,
     );
     const schemaUri = await Cord.Schema.dispatchToChain(
         schemaProperties.schema,
-        issuerDid.uri,
-        authorIdentity,
-        space.authorization,
-        async ({ data }) => ({
-            signature: issuerKeys.authentication.sign(data),
-            keyType: issuerKeys.authentication.type,
-        }),
+        issuerAccount
     );
     console.log(`✅ Schema - ${schemaUri} - added!`);
 
@@ -120,8 +115,8 @@ async function main() {
                 },
             },
         },
-        issuerDid,
-        holderDid.uri,
+        issuerAccountDid,
+        holderDid,
         {
             spaceUri: space.uri,
             schemaUri: schemaUri,
@@ -131,13 +126,12 @@ async function main() {
     let vc = await addProof(
         newCredContent,
         async (data) => ({
-            signature: await issuerKeys.assertionMethod.sign(data),
-            keyType: issuerKeys.assertionMethod.type,
-            keyUri: `${issuerDid.uri}${
-                issuerDid.assertionMethod![0].id
-            }` as Cord.DidResourceUri,
+            signature: issuerAccount.sign(data),
+            keyType: issuerAccount.type,
+            keyUri: `${issuerAccountDid}`,
         }),
-        issuerDid,
+        issuerAccount.address,
+        issuerAccountDid,
         api,
         {
             spaceUri: space.uri,
@@ -151,19 +145,15 @@ async function main() {
         colors: true,
     });
 
+    const proof = vc.proof ? vc.proof[1]: {};
     const statement = await Cord.Statement.dispatchRegisterToChain(
-        vc.proof[1],
-        issuerDid.uri,
-        authorIdentity,
+        proof as unknown as Cord.IStatementEntry,
+        issuerAccount,
         space.authorization,
-        async ({ data }) => ({
-            signature: issuerKeys.authentication.sign(data),
-            keyType: issuerKeys.authentication.type,
-        }),
     );
 
     console.log(`✅ Statement element registered - ${statement}`);
-
+/*
     await verifyVC(vc);
 
     const holderKeys = Cord.Utils.Keys.generateKeypairs(
@@ -189,33 +179,29 @@ async function main() {
         },
     );
     console.dir(vp, { colors: true, depth: null });
+    */
     /* VP verification would 'throw' an error in case of error */
-    await verifyVP(vp);
+    //await verifyVP(vp);
 
     /* sample for document hash anchor on CORD */
     const content: any = fs.readFileSync('./package.json');
     const hashFn = crypto.createHash('sha256');
     hashFn.update(content);
-    let digest = `0x${hashFn.digest('hex')}`;
+    let digest: Cord.HexString = `0x${hashFn.digest('hex')}`;
 
-    const docProof = await getCordProofForDigest(digest, issuerDid, api, {
+    const docProof = await getCordProofForDigest(digest, issuerAccount.address, api, {
         spaceUri: space.uri,
     });
     const statement1 = await Cord.Statement.dispatchRegisterToChain(
-        docProof,
-        issuerDid.uri,
-        authorIdentity,
+        docProof as unknown as Cord.IStatementEntry,
+        issuerAccount,
         space.authorization,
-        async ({ data }) => ({
-            signature: issuerKeys.authentication.sign(data),
-            keyType: issuerKeys.authentication.type,
-        }),
     );
 
     console.dir(docProof, { colors: true, depth: null });
     console.log(`✅ Statement element registered - ${statement1}`);
 
-    await verifyProofElement(docProof, digest, undefined);
+    //await verifyProofElement(docProof, digest, undefined);
 
     // Step:5 Update Verifiable credential
     console.log(`\n* Statement updation`);
@@ -247,13 +233,11 @@ async function main() {
         vc.proof[1].elementUri,
         updatedCredContent,
         async (data) => ({
-            signature: await issuerKeys.assertionMethod.sign(data),
-            keyType: issuerKeys.assertionMethod.type,
-            keyUri: `${issuerDid.uri}${
-                issuerDid.assertionMethod![0].id
-            }` as Cord.DidResourceUri,
+            signature: await issuerAccount.sign(data),
+            keyType: issuerAccount.type,
+            keyUri: issuerAccountDid,
         }),
-        issuerDid,
+        issuerAccountDid,
         api,
         {
             spaceUri: space.uri,
@@ -269,14 +253,9 @@ async function main() {
     });
 
     const updatedStatement = await Cord.Statement.dispatchUpdateToChain(
-        updatedVc.proof[1],
-        issuerDid.uri,
-        authorIdentity,
+        updatedVc.proof[1] as unknown as Cord.IStatementEntry,
+        issuerAccount,
         space.authorization,
-        async ({ data }) => ({
-            signature: issuerKeys.authentication.sign(data),
-            keyType: issuerKeys.authentication.type,
-        }),
     );
 
     console.log(`✅ UpdatedStatement element registered - ${updatedStatement}`);

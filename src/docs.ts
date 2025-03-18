@@ -2,7 +2,7 @@ import * as Cord from '@cord.network/sdk';
 
 import { ApiPromise } from '@cord.network/types';
 
-import { CordProof2024 } from './types';
+import { CordProof2025 } from './types';
 
 /*
 import { base58Encode, base58Decode } from '@polkadot/util-crypto'
@@ -18,7 +18,7 @@ function hash(value: string) {
 // path: file path on storage
 export async function getCordProofForDigest(
     digest: Cord.HexString,
-    issuerDid: Cord.DidDocument,
+    issuerDid: string,
     network: ApiPromise,
     options: any,
 ) {
@@ -26,15 +26,15 @@ export async function getCordProofForDigest(
     const statementEntry = Cord.Statement.buildFromProperties(
         digest,
         options.spaceUri!,
-        issuerDid.uri,
+        issuerDid,
         undefined /* no schema for regular file */,
     );
     let elem = statementEntry.elementUri.split(':');
-    let proof: CordProof2024 = {
-        type: 'CordProof2024',
+    let proof: CordProof2025 = {
+        type: 'CordProof2025',
         elementUri: statementEntry.elementUri,
         spaceUri: statementEntry.spaceUri,
-        creatorUri: issuerDid.uri,
+        creatorAddress: issuerDid,
         digest: digest,
         identifier: `${elem[0]}:${elem[1]}:${elem[2]}`,
         genesisHash: genesisHash,

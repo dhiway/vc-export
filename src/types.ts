@@ -25,6 +25,11 @@ export interface CordProof2024 extends VCProofType, Cord.IStatementEntry {
     genesisHash: string;
 }
 
+export interface CordProof2025 extends VCProofType, Cord.IStatementEntryAccountType {
+    identifier: string; //Cord.StatementUri
+    genesisHash: string;
+}
+
 export interface CordSDRProof2024 extends VCProofType {
     defaultDigest: string;
     hashes: Array<Cord.HexString>;
@@ -32,7 +37,7 @@ export interface CordSDRProof2024 extends VCProofType {
     genesisHash: string;
 }
 
-export type VCProof = CordSDRProof2024 | ED25519Proof | CordProof2024;
+export type VCProof = CordSDRProof2024 | ED25519Proof | CordProof2024 | CordProof2025;
 
 /* TODO: make it more clear, and better - followup PRs */
 export interface VerifiableCredential {
@@ -58,7 +63,23 @@ export interface VerifiablePresentation {
     [key: string]: any;
 }
 
+export interface SignResponseData {
+    /**
+     * Result of the signing.
+     */
+    signature: Uint8Array
+    /**
+     * The did key uri used for signing.
+     */
+    keyUri: string
+    /**
+     * The did key type used for signing.
+     */
+    keyType: Cord.DidVerificationKey['type']
+  }
+  
+
 /**
  * A callback function to sign data.
  */
-export type SignCallback = (signData: any) => Promise<Cord.SignResponseData>;
+export type SignCallback = (signData: any) => Promise<SignResponseData>;

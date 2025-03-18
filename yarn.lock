@@ -32,59 +32,71 @@
   resolved "https://registry.yarnpkg.com/@cbor-extract/cbor-extract-win32-x64/-/cbor-extract-win32-x64-2.2.0.tgz#4b3f07af047f984c082de34b116e765cb9af975f"
   integrity sha512-l2M+Z8DO2vbvADOBNLbbh9y5ST1RY5sqkWOg/58GkUPBYou/cuNZ68SGQ644f1CvZ8kcOxyZtw06+dxWHIoN/w==
 
-"@cord.network/asset@0.9.5-rc1":
-  version "0.9.5-rc1"
-  resolved "https://registry.npmjs.org/@cord.network/asset/-/asset-0.9.5-rc1.tgz"
-  integrity sha512-uhDfM0aI6tZvSbRQwMqotsX2n0h44e3f6leOOGY9SJIT9VWhYlGEHIJepWQM7+zObgVipokWwbOqE1bt/Grlig==
+"@cord.network/asset@0.9.6-rc1":
+  version "0.9.6-rc1"
+  resolved "https://registry.yarnpkg.com/@cord.network/asset/-/asset-0.9.6-rc1.tgz#f0771187133bffd9cc86a757f529063a3c044d3d"
+  integrity sha512-L0EU00gtFei/1uwcVXtqmkpvv75DuilnfNLjeRumIpNDwUCNnDdIjFf5H6fRVcqf/y0Ma5qcaOTtphTxPgJmuA==
   dependencies:
-    "@cord.network/config" "0.9.5-rc1"
-    "@cord.network/did" "0.9.5-rc1"
-    "@cord.network/identifier" "0.9.5-rc1"
-    "@cord.network/network" "0.9.5-rc1"
-    "@cord.network/types" "0.9.5-rc1"
-    "@cord.network/utils" "0.9.5-rc1"
+    "@cord.network/config" "0.9.6-rc1"
+    "@cord.network/did" "0.9.6-rc1"
+    "@cord.network/identifier" "0.9.6-rc1"
+    "@cord.network/network" "0.9.6-rc1"
+    "@cord.network/types" "0.9.6-rc1"
+    "@cord.network/utils" "0.9.6-rc1"
 
-"@cord.network/augment-api@0.9.5-rc1":
-  version "0.9.5-rc1"
-  resolved "https://registry.npmjs.org/@cord.network/augment-api/-/augment-api-0.9.5-rc1.tgz"
-  integrity sha512-V/kAihR6Lg0WTSivFAfkLdfAEaocKsQKmEk1xY0NrVkSh7WN8DEkiIibB0cF3STXUnCeHBAzd8P7CwYgt+mQIA==
+"@cord.network/augment-api@0.9.6-rc1":
+  version "0.9.6-rc1"
+  resolved "https://registry.yarnpkg.com/@cord.network/augment-api/-/augment-api-0.9.6-rc1.tgz#1bdd918ba4136b2ea81cdd612fd883504729d104"
+  integrity sha512-oNzpLpUFuQKUAY3tRLODlO/XnHUdARCAiuLShFlEuvOufCE4CHfiKOdPXyfBoQjyKIrueHdXU/7KAD9Psl+A/A==
   dependencies:
-    "@cord.network/type-definitions" "0.9.5-rc1"
+    "@cord.network/type-definitions" "0.9.6-rc1"
     "@polkadot/rpc-augment" "^10.12.2"
     "@polkadot/rpc-core" "^10.12.2"
     "@polkadot/rpc-provider" "^10.12.2"
 
-"@cord.network/chain-space@0.9.5-rc1":
-  version "0.9.5-rc1"
-  resolved "https://registry.npmjs.org/@cord.network/chain-space/-/chain-space-0.9.5-rc1.tgz"
-  integrity sha512-mH/bKxvB38g0CnNzFvv7lIORM1x52E2jU6P9LbpdaBt+lQXEmmAmdW12dpqu7evO6LXpXVMfcD2fxwAQti9HKw==
+"@cord.network/chain-space-did@0.9.6-rc1":
+  version "0.9.6-rc1"
+  resolved "https://registry.yarnpkg.com/@cord.network/chain-space-did/-/chain-space-did-0.9.6-rc1.tgz#82546fbbf2b4e6fe792f6a8b954f3bf50cd0a0d7"
+  integrity sha512-guKHBMnprS6lSeX9mf4JclW2hUaE5GPVwlijzJQlLjtzTzLvBpzFK47RzyXxiaCHKb5pFnDxYVIowN5hEuaYmQ==
   dependencies:
-    "@cord.network/config" "0.9.5-rc1"
-    "@cord.network/did" "0.9.5-rc1"
-    "@cord.network/identifier" "0.9.5-rc1"
-    "@cord.network/network" "0.9.5-rc1"
-    "@cord.network/types" "0.9.5-rc1"
-    "@cord.network/utils" "0.9.5-rc1"
+    "@cord.network/config" "0.9.6-rc1"
+    "@cord.network/did" "0.9.6-rc1"
+    "@cord.network/identifier" "0.9.6-rc1"
+    "@cord.network/network" "0.9.6-rc1"
+    "@cord.network/types" "0.9.6-rc1"
+    "@cord.network/utils" "0.9.6-rc1"
 
-"@cord.network/config@0.9.5-rc1":
-  version "0.9.5-rc1"
-  resolved "https://registry.npmjs.org/@cord.network/config/-/config-0.9.5-rc1.tgz"
-  integrity sha512-zXgHCNBMx00Tf7YSjym1zzTnsftKf9WGlTBK1akLxT7jNAg+3zTv970lIR7lnEDbmaBYgdA4LN8o0EnyO2Rg7g==
+"@cord.network/chain-space@0.9.6-rc1":
+  version "0.9.6-rc1"
+  resolved "https://registry.yarnpkg.com/@cord.network/chain-space/-/chain-space-0.9.6-rc1.tgz#b8db18c089e0e4cdc3131a042eff8cabc654be8c"
+  integrity sha512-stiCKVHkiVbV5ymAlao0bi0r6v0xfoCc42hDK6j6pOAn4b3UHxhrnuIEupLWkhuXBOAarJKm+wySgPH4DMzZMQ==
   dependencies:
-    "@cord.network/type-definitions" "0.9.5-rc1"
-    "@cord.network/types" "0.9.5-rc1"
-    "@cord.network/utils" "0.9.5-rc1"
+    "@cord.network/config" "0.9.6-rc1"
+    "@cord.network/did" "0.9.6-rc1"
+    "@cord.network/identifier" "0.9.6-rc1"
+    "@cord.network/network" "0.9.6-rc1"
+    "@cord.network/types" "0.9.6-rc1"
+    "@cord.network/utils" "0.9.6-rc1"
 
-"@cord.network/did@0.9.5-rc1":
-  version "0.9.5-rc1"
-  resolved "https://registry.npmjs.org/@cord.network/did/-/did-0.9.5-rc1.tgz"
-  integrity sha512-P6rfrKJrsSXKWYYfJqaQZFY86DrnRx7gDGiV9+9+0S85Luj28OohF3r5+EkQ5wDinrbNcm/0O5hytN6aQB9vVg==
+"@cord.network/config@0.9.6-rc1":
+  version "0.9.6-rc1"
+  resolved "https://registry.yarnpkg.com/@cord.network/config/-/config-0.9.6-rc1.tgz#52e1810da02231b6dfede8b7e15864d36b9ac897"
+  integrity sha512-Q7YPkGyBk+4QYrJLhqCQDacck4uKuYACKvOE07Fwz9TJZAnr/u4cYeKdGS8bjPMWyuIS2SclGxPVVIUr8bQPiA==
   dependencies:
-    "@cord.network/augment-api" "0.9.5-rc1"
-    "@cord.network/config" "0.9.5-rc1"
-    "@cord.network/network" "0.9.5-rc1"
-    "@cord.network/types" "0.9.5-rc1"
-    "@cord.network/utils" "0.9.5-rc1"
+    "@cord.network/type-definitions" "0.9.6-rc1"
+    "@cord.network/types" "0.9.6-rc1"
+    "@cord.network/utils" "0.9.6-rc1"
+
+"@cord.network/did@0.9.6-rc1":
+  version "0.9.6-rc1"
+  resolved "https://registry.yarnpkg.com/@cord.network/did/-/did-0.9.6-rc1.tgz#bb0ebf4ab7d26abd44ca374b1aed07d14deba118"
+  integrity sha512-1OnrzJ8GMUiAOBpBCBF97Pig4zrYmZFGrWC8smn4UChFTlvw+vYpfVCbM33tJXKwP8DOaGVnua6mSvNtx1aU+g==
+  dependencies:
+    "@cord.network/augment-api" "0.9.6-rc1"
+    "@cord.network/config" "0.9.6-rc1"
+    "@cord.network/network" "0.9.6-rc1"
+    "@cord.network/types" "0.9.6-rc1"
+    "@cord.network/utils" "0.9.6-rc1"
     "@digitalbazaar/security-context" "^1.0.1"
     "@polkadot/api" "^10.12.2"
     "@polkadot/keyring" "^12.6.2"
@@ -93,143 +105,157 @@
     "@polkadot/util" "^12.6.2"
     "@polkadot/util-crypto" "^12.6.2"
 
-"@cord.network/entries@0.9.5-rc1":
-  version "0.9.5-rc1"
-  resolved "https://registry.npmjs.org/@cord.network/entries/-/entries-0.9.5-rc1.tgz"
-  integrity sha512-s44Cdk38Ow8r38G0GYHwfIEfaUJv82Vfx+I9u2A9vR0jjD0zS6yarUNCdmXx+xZK4X9vhUx81NJiXexo5Jqrdg==
+"@cord.network/entries@0.9.6-rc1":
+  version "0.9.6-rc1"
+  resolved "https://registry.yarnpkg.com/@cord.network/entries/-/entries-0.9.6-rc1.tgz#3c534b1d7f8a81431c44830f0480bbbbbc93d0b7"
+  integrity sha512-NlcBsLjwYv4O/2OENzKMmLoxZicWGK/VIJPH81xmHRKIOfmsRGBy/VeptSngoJsn7c0+z8pstnJVf3tTjwNfCQ==
   dependencies:
-    "@cord.network/config" "0.9.5-rc1"
-    "@cord.network/identifier" "0.9.5-rc1"
-    "@cord.network/network" "0.9.5-rc1"
-    "@cord.network/registries" "0.9.5-rc1"
-    "@cord.network/types" "0.9.5-rc1"
-    "@cord.network/utils" "0.9.5-rc1"
+    "@cord.network/config" "0.9.6-rc1"
+    "@cord.network/identifier" "0.9.6-rc1"
+    "@cord.network/network" "0.9.6-rc1"
+    "@cord.network/registries" "0.9.6-rc1"
+    "@cord.network/types" "0.9.6-rc1"
+    "@cord.network/utils" "0.9.6-rc1"
 
-"@cord.network/identifier@0.9.5-rc1":
-  version "0.9.5-rc1"
-  resolved "https://registry.npmjs.org/@cord.network/identifier/-/identifier-0.9.5-rc1.tgz"
-  integrity sha512-ETGcPOS8d2l73IrfgbORKJ5KujwjyndE5+dUe+gWI0nrkvVNcK+c2vRDfeXepAqFhdoIzhXneu+SpwgXxmrBuQ==
+"@cord.network/identifier@0.9.6-rc1":
+  version "0.9.6-rc1"
+  resolved "https://registry.yarnpkg.com/@cord.network/identifier/-/identifier-0.9.6-rc1.tgz#c648af69dbeafbacc46da2f784e30615f362a4a1"
+  integrity sha512-g5tbhD+S9mQPje8c7KL7DwwkD5Qn2iJ6bLP3ioMMT7lUrpnJNNc2iMVyFqgz/ZM5sNpGwo2jJCqA/dVR24JuNQ==
   dependencies:
-    "@cord.network/types" "0.9.5-rc1"
-    "@cord.network/utils" "0.9.5-rc1"
+    "@cord.network/types" "0.9.6-rc1"
+    "@cord.network/utils" "0.9.6-rc1"
 
-"@cord.network/namespace@0.9.5-rc1":
-  version "0.9.5-rc1"
-  resolved "https://registry.npmjs.org/@cord.network/namespace/-/namespace-0.9.5-rc1.tgz"
-  integrity sha512-s0r6dBxhRvyFvtqPRQo8lIcQljOaYfnpokhCSwIQ8vtp+oPP+AJCEEf4kxXh9bkKIzIbCpRHX9dyD4P9J96VQQ==
+"@cord.network/namespace@0.9.6-rc1":
+  version "0.9.6-rc1"
+  resolved "https://registry.yarnpkg.com/@cord.network/namespace/-/namespace-0.9.6-rc1.tgz#105282c1a8e8f9e80f31382650a11bb507576620"
+  integrity sha512-fZGm6wzSxSSd/9MH4aOrwSN6fiwtVfLKOStFXlgmbyyEHE8sADt4Q8pMZEpEZ05g/UumV2j0CA9OR/PiIzVfBg==
   dependencies:
-    "@cord.network/config" "0.9.5-rc1"
-    "@cord.network/identifier" "0.9.5-rc1"
-    "@cord.network/network" "0.9.5-rc1"
-    "@cord.network/types" "0.9.5-rc1"
-    "@cord.network/utils" "0.9.5-rc1"
+    "@cord.network/config" "0.9.6-rc1"
+    "@cord.network/identifier" "0.9.6-rc1"
+    "@cord.network/network" "0.9.6-rc1"
+    "@cord.network/types" "0.9.6-rc1"
+    "@cord.network/utils" "0.9.6-rc1"
 
-"@cord.network/network-score@0.9.5-rc1":
-  version "0.9.5-rc1"
-  resolved "https://registry.npmjs.org/@cord.network/network-score/-/network-score-0.9.5-rc1.tgz"
-  integrity sha512-uRjr2UkoIdXG6raD2Y5OgE69LW4+iqdeT1NHNYNq1kUCsXMGWc9i0zLkARoqc9/C+v7y3NV+qDKKCMnpQnbnRw==
+"@cord.network/network-score@0.9.6-rc1":
+  version "0.9.6-rc1"
+  resolved "https://registry.yarnpkg.com/@cord.network/network-score/-/network-score-0.9.6-rc1.tgz#26a21b1422e0feb03f53c26d243f6562295f8ba5"
+  integrity sha512-cOlnW4NEN9RLukjSTfjh2/Nc74Qyh8sgDL0e39jmHHp5D00l+7pwQsR90dD8ZYU2qdr3Q0SFlMKGJTAq4ozPrQ==
   dependencies:
-    "@cord.network/config" "0.9.5-rc1"
-    "@cord.network/did" "0.9.5-rc1"
-    "@cord.network/identifier" "0.9.5-rc1"
-    "@cord.network/network" "0.9.5-rc1"
-    "@cord.network/types" "0.9.5-rc1"
-    "@cord.network/utils" "0.9.5-rc1"
+    "@cord.network/config" "0.9.6-rc1"
+    "@cord.network/did" "0.9.6-rc1"
+    "@cord.network/identifier" "0.9.6-rc1"
+    "@cord.network/network" "0.9.6-rc1"
+    "@cord.network/types" "0.9.6-rc1"
+    "@cord.network/utils" "0.9.6-rc1"
 
-"@cord.network/network@0.9.5-rc1":
-  version "0.9.5-rc1"
-  resolved "https://registry.npmjs.org/@cord.network/network/-/network-0.9.5-rc1.tgz"
-  integrity sha512-ulHWyKSOFh+eVS7A43rCB56TfCvb22AQUiStcJ+BHlfoNojKapv+gR5q/pr2UBcxGyCiqk7mxTBIM5NaA7xLnA==
+"@cord.network/network@0.9.6-rc1":
+  version "0.9.6-rc1"
+  resolved "https://registry.yarnpkg.com/@cord.network/network/-/network-0.9.6-rc1.tgz#586d7c3e710c52a616c4c0474decec001781cf38"
+  integrity sha512-Q6aOdcLInIb814sgFSsUSU2bUxrYw1U2VL2GUlKx9eXZqZ1L2rJpD+IPV5Vn6GiyO3GOg2SOShlw4znUHt2VMw==
   dependencies:
-    "@cord.network/config" "0.9.5-rc1"
-    "@cord.network/types" "0.9.5-rc1"
-    "@cord.network/utils" "0.9.5-rc1"
+    "@cord.network/config" "0.9.6-rc1"
+    "@cord.network/types" "0.9.6-rc1"
+    "@cord.network/utils" "0.9.6-rc1"
     "@polkadot/api" "^10.12.2"
     "@polkadot/types" "^10.12.2"
 
-"@cord.network/registries@0.9.5-rc1":
-  version "0.9.5-rc1"
-  resolved "https://registry.npmjs.org/@cord.network/registries/-/registries-0.9.5-rc1.tgz"
-  integrity sha512-da7/RD35Owfxjw92X9H1W9Fehc3nikzffVEWJhufxospW4rPw+AyPM8vS3J6CLLZQkXAGWrcELPFON3nrs0UFg==
+"@cord.network/registries@0.9.6-rc1":
+  version "0.9.6-rc1"
+  resolved "https://registry.yarnpkg.com/@cord.network/registries/-/registries-0.9.6-rc1.tgz#d0db134d11be6ca4cb58512c7dc6878da35c925d"
+  integrity sha512-jD/7gOcHmeHW5YPo0DBJ8A4pQ6PBAKOtvyRkkNATlsBERy8lRYEjMDJcVWb0qmdyF0lBDOr0itUMsNdbDoX4FQ==
   dependencies:
-    "@cord.network/config" "0.9.5-rc1"
-    "@cord.network/identifier" "0.9.5-rc1"
-    "@cord.network/network" "0.9.5-rc1"
-    "@cord.network/schema-accounts" "0.9.5-rc1"
-    "@cord.network/types" "0.9.5-rc1"
-    "@cord.network/utils" "0.9.5-rc1"
+    "@cord.network/config" "0.9.6-rc1"
+    "@cord.network/identifier" "0.9.6-rc1"
+    "@cord.network/network" "0.9.6-rc1"
+    "@cord.network/schema" "0.9.6-rc1"
+    "@cord.network/types" "0.9.6-rc1"
+    "@cord.network/utils" "0.9.6-rc1"
 
-"@cord.network/schema-accounts@0.9.5-rc1":
-  version "0.9.5-rc1"
-  resolved "https://registry.npmjs.org/@cord.network/schema-accounts/-/schema-accounts-0.9.5-rc1.tgz"
-  integrity sha512-18WKdIKaxnrhc73yfJYh0dwSs+8VyPuMn2q8iul+QdWv3GHnhk1JE9bmRKQeVmAGVbapRiqbwxBrHVsF+Ftl4g==
+"@cord.network/schema-did@0.9.6-rc1":
+  version "0.9.6-rc1"
+  resolved "https://registry.yarnpkg.com/@cord.network/schema-did/-/schema-did-0.9.6-rc1.tgz#5ba64cda0882c5d58d7587e3ea0f94e72268b2a7"
+  integrity sha512-oJj4BeehCkbeULZCriS+AcEHTZLj9N2fLzfsIa15glunYlCJJJsylbr+bO4izTypGtsMLj4jy+db+CmoUTDusA==
   dependencies:
-    "@cord.network/augment-api" "0.9.5-rc1"
-    "@cord.network/config" "0.9.5-rc1"
-    "@cord.network/did" "0.9.5-rc1"
-    "@cord.network/identifier" "0.9.5-rc1"
-    "@cord.network/network" "0.9.5-rc1"
-    "@cord.network/types" "0.9.5-rc1"
-    "@cord.network/utils" "0.9.5-rc1"
+    "@cord.network/augment-api" "0.9.6-rc1"
+    "@cord.network/chain-space-did" "0.9.6-rc1"
+    "@cord.network/config" "0.9.6-rc1"
+    "@cord.network/did" "0.9.6-rc1"
+    "@cord.network/identifier" "0.9.6-rc1"
+    "@cord.network/network" "0.9.6-rc1"
+    "@cord.network/types" "0.9.6-rc1"
+    "@cord.network/utils" "0.9.6-rc1"
 
-"@cord.network/schema@0.9.5-rc1":
-  version "0.9.5-rc1"
-  resolved "https://registry.npmjs.org/@cord.network/schema/-/schema-0.9.5-rc1.tgz"
-  integrity sha512-pHMZxDvnSC0tagJyNAjHtjSe/1QjeGFH8FuLEW0nt93BGIrwHrZCa7b6nUM+FY8x9vPm13iJVZDDZVCPJvwBbQ==
+"@cord.network/schema@0.9.6-rc1":
+  version "0.9.6-rc1"
+  resolved "https://registry.yarnpkg.com/@cord.network/schema/-/schema-0.9.6-rc1.tgz#455cc082e71997ae11a0a72c793be4fe50deefde"
+  integrity sha512-kziy4/M8fn4aSPZRy7QL2TO/p/Rj/MQzr8kRa+HP/kAmIjAMQlS7VR07qP4Chxr5vk1FeUF6Lsf1X3cT9X3c9g==
   dependencies:
-    "@cord.network/augment-api" "0.9.5-rc1"
-    "@cord.network/chain-space" "0.9.5-rc1"
-    "@cord.network/config" "0.9.5-rc1"
-    "@cord.network/did" "0.9.5-rc1"
-    "@cord.network/identifier" "0.9.5-rc1"
-    "@cord.network/network" "0.9.5-rc1"
-    "@cord.network/types" "0.9.5-rc1"
-    "@cord.network/utils" "0.9.5-rc1"
+    "@cord.network/augment-api" "0.9.6-rc1"
+    "@cord.network/config" "0.9.6-rc1"
+    "@cord.network/did" "0.9.6-rc1"
+    "@cord.network/identifier" "0.9.6-rc1"
+    "@cord.network/network" "0.9.6-rc1"
+    "@cord.network/types" "0.9.6-rc1"
+    "@cord.network/utils" "0.9.6-rc1"
 
-"@cord.network/sdk@0.9.5-rc1":
-  version "0.9.5-rc1"
-  resolved "https://registry.npmjs.org/@cord.network/sdk/-/sdk-0.9.5-rc1.tgz"
-  integrity sha512-KBk7lg5dcY2S0EejaJhcrV5STYubi6fedGAKTDgnSwxgyTdC1SrXOVL/6lkWC5b0AbvbKrMVFWNKM0fMdgqRnA==
+"@cord.network/sdk@0.9.6-rc1":
+  version "0.9.6-rc1"
+  resolved "https://registry.yarnpkg.com/@cord.network/sdk/-/sdk-0.9.6-rc1.tgz#e54e90cffa4f1fc17da348cd7977f4f341995f2e"
+  integrity sha512-DocGd5c6ftQdfHkb/j0SZRRb0zp6HbEEo09FlHFZWEvAw9zwnD9v6SzvRRU2yorTxcSm3iR+H2BTGU3K1U+u1Q==
   dependencies:
-    "@cord.network/asset" "0.9.5-rc1"
-    "@cord.network/chain-space" "0.9.5-rc1"
-    "@cord.network/config" "0.9.5-rc1"
-    "@cord.network/did" "0.9.5-rc1"
-    "@cord.network/entries" "0.9.5-rc1"
-    "@cord.network/identifier" "0.9.5-rc1"
-    "@cord.network/namespace" "0.9.5-rc1"
-    "@cord.network/network" "0.9.5-rc1"
-    "@cord.network/network-score" "0.9.5-rc1"
-    "@cord.network/registries" "0.9.5-rc1"
-    "@cord.network/schema" "0.9.5-rc1"
-    "@cord.network/schema-accounts" "0.9.5-rc1"
-    "@cord.network/statement" "0.9.5-rc1"
-    "@cord.network/types" "0.9.5-rc1"
-    "@cord.network/utils" "0.9.5-rc1"
+    "@cord.network/asset" "0.9.6-rc1"
+    "@cord.network/chain-space" "0.9.6-rc1"
+    "@cord.network/chain-space-did" "0.9.6-rc1"
+    "@cord.network/config" "0.9.6-rc1"
+    "@cord.network/did" "0.9.6-rc1"
+    "@cord.network/entries" "0.9.6-rc1"
+    "@cord.network/identifier" "0.9.6-rc1"
+    "@cord.network/namespace" "0.9.6-rc1"
+    "@cord.network/network" "0.9.6-rc1"
+    "@cord.network/network-score" "0.9.6-rc1"
+    "@cord.network/registries" "0.9.6-rc1"
+    "@cord.network/schema" "0.9.6-rc1"
+    "@cord.network/schema-did" "0.9.6-rc1"
+    "@cord.network/statement" "0.9.6-rc1"
+    "@cord.network/statement-did" "0.9.6-rc1"
+    "@cord.network/types" "0.9.6-rc1"
+    "@cord.network/utils" "0.9.6-rc1"
 
-"@cord.network/statement@0.9.5-rc1":
-  version "0.9.5-rc1"
-  resolved "https://registry.npmjs.org/@cord.network/statement/-/statement-0.9.5-rc1.tgz"
-  integrity sha512-iEbj+h+d/Ap19jBlrhG1vcsQfJyHLsyFgOKdfm8UvR3Yc8XeMmTYQcj6r0dTDX0aBKUNPvNL1LFnFglhRDFNXQ==
+"@cord.network/statement-did@0.9.6-rc1":
+  version "0.9.6-rc1"
+  resolved "https://registry.yarnpkg.com/@cord.network/statement-did/-/statement-did-0.9.6-rc1.tgz#bbc99ab63a3364e0a07b8ebfb06e27120c3982f0"
+  integrity sha512-ak/0xG+TbvS7CwyCXtZZQElpjlu6jlyihfgx9GKReidUBu/t3PLFRBTni5yZH75m3g3CE/is2s5VYrwsN1ggMQ==
   dependencies:
-    "@cord.network/config" "0.9.5-rc1"
-    "@cord.network/did" "0.9.5-rc1"
-    "@cord.network/identifier" "0.9.5-rc1"
-    "@cord.network/network" "0.9.5-rc1"
-    "@cord.network/types" "0.9.5-rc1"
-    "@cord.network/utils" "0.9.5-rc1"
+    "@cord.network/config" "0.9.6-rc1"
+    "@cord.network/did" "0.9.6-rc1"
+    "@cord.network/identifier" "0.9.6-rc1"
+    "@cord.network/network" "0.9.6-rc1"
+    "@cord.network/types" "0.9.6-rc1"
+    "@cord.network/utils" "0.9.6-rc1"
 
-"@cord.network/type-definitions@0.9.5-rc1":
-  version "0.9.5-rc1"
-  resolved "https://registry.npmjs.org/@cord.network/type-definitions/-/type-definitions-0.9.5-rc1.tgz"
-  integrity sha512-uC87adNgh+ACCZUtC4kNOn4+0HXVjCc4u6/PqZho/tKoVXjc9DVNtj7PSEAgEuR8JbehizRJAzAWo37u6HwMvg==
+"@cord.network/statement@0.9.6-rc1":
+  version "0.9.6-rc1"
+  resolved "https://registry.yarnpkg.com/@cord.network/statement/-/statement-0.9.6-rc1.tgz#99fdfa8642ffe83187f641cf17289a06e6e48347"
+  integrity sha512-dWMJeQT9vI9bhQd5gUFvWoqbDKdEM2UBOEHVO+d7aP6l9HsMTsf8q4wuvP9kMn3kM4PrzZNB1uy4eVfZAx0Whw==
+  dependencies:
+    "@cord.network/config" "0.9.6-rc1"
+    "@cord.network/did" "0.9.6-rc1"
+    "@cord.network/identifier" "0.9.6-rc1"
+    "@cord.network/network" "0.9.6-rc1"
+    "@cord.network/types" "0.9.6-rc1"
+    "@cord.network/utils" "0.9.6-rc1"
+
+"@cord.network/type-definitions@0.9.6-rc1":
+  version "0.9.6-rc1"
+  resolved "https://registry.yarnpkg.com/@cord.network/type-definitions/-/type-definitions-0.9.6-rc1.tgz#5f6730b33b96270f3d0579f78246614cdcd4fe90"
+  integrity sha512-CmxnpcFixgOHHwYus3FlOG9/W72uUArg4KaQgm/6LAFb8HlSKx6/GYV4VCn0/Ze1N/72lhjDwIyCDAKxmdJnbQ==
   dependencies:
     "@polkadot/types" "^10.12.2"
 
-"@cord.network/types@0.9.5-rc1":
-  version "0.9.5-rc1"
-  resolved "https://registry.npmjs.org/@cord.network/types/-/types-0.9.5-rc1.tgz"
-  integrity sha512-e2sumdp9SnLLgXg2fASGZezqxKze/Lq/YFRsmSj8JlVB92MtJpPVCdi6lFoFZ3COdCgD1ULw7syYXWahkfrpqg==
+"@cord.network/types@0.9.6-rc1":
+  version "0.9.6-rc1"
+  resolved "https://registry.yarnpkg.com/@cord.network/types/-/types-0.9.6-rc1.tgz#f51a437b774d2082d46e98b4f2cbff7188590af9"
+  integrity sha512-Ky/UkpWBKXLMX/Giiyppa5YLsHAj/bjyuR8ZlgTGgHqpNfzry5ePn04aijL03ImWzFQTVUpZMZ9AQh0QrP2Ocw==
   dependencies:
     "@polkadot/api" "^10.12.2"
     "@polkadot/keyring" "^12.6.2"
@@ -237,12 +263,12 @@
     "@polkadot/util" "^12.6.2"
     "@polkadot/util-crypto" "^12.6.2"
 
-"@cord.network/utils@0.9.5-rc1":
-  version "0.9.5-rc1"
-  resolved "https://registry.npmjs.org/@cord.network/utils/-/utils-0.9.5-rc1.tgz"
-  integrity sha512-xLK5yPXhP4EoKtk2WFIb7OXt4VOCrh1i0C4Ai9RKYb0avZMrpiTvw9fPdnGlDlV2i6utb7a96NnamN3lZZaFXg==
+"@cord.network/utils@0.9.6-rc1":
+  version "0.9.6-rc1"
+  resolved "https://registry.yarnpkg.com/@cord.network/utils/-/utils-0.9.6-rc1.tgz#7977ad9414ca11fc905e3c64c79be724ce5ae2be"
+  integrity sha512-USu7KfgvG+yUIdrG6zUYamknR2I7d1LF0z0B1dfVNOkxMv0gzK/x+SQ3AUcCbxZYN5TYMko7TeQj3279/gHxjQ==
   dependencies:
-    "@cord.network/types" "0.9.5-rc1"
+    "@cord.network/types" "0.9.6-rc1"
     "@polkadot/api" "^10.12.2"
     "@polkadot/keyring" "^12.6.2"
     "@polkadot/util" "^12.6.2"

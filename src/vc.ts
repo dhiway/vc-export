@@ -3,18 +3,15 @@ import dayjs from 'moment';
 import * as Cord from '@cord.network/sdk';
 import { verifyDataStructure } from '@cord.network/statement';
 import { uriToIdentifier, buildStatementUri } from '@cord.network/identifier';
-import * as Did from '@cord.network/did';
 import { Ed25519Signature2020 } from '@digitalcredentials/ed25519-signature-2020';
 import { Ed25519VerificationKey2020 } from '@digitalcredentials/ed25519-verification-key-2020';
 import { sign, purposes } from 'jsonld-signatures';
 
 import {
     HexString,
-    DidUri,
     SpaceUri,
     SchemaUri,
     StatementUri,
-    IStatementEntry,
     H256,
     Bytes,
     AccountId,
@@ -28,7 +25,7 @@ import {
     IContents,
     ED25519Proof,
     CordSDRProof2024,
-    CordProof2024,
+    CordProof2025,
     SignCallback,
 } from './types';
 
@@ -37,7 +34,7 @@ import { hashContents, calculateVCHash, calculateNewVCHash } from './utils';
 export function getUriForStatement(
     digest: HexString,
     spaceUri: SpaceUri,
-    creatorUri: DidUri,
+    creatorUri: string,
 ): StatementUri {
     const api = Cord.ConfigService.get('api');
 
@@ -46,7 +43,7 @@ export function getUriForStatement(
         .createType<Bytes>('Bytes', uriToIdentifier(spaceUri))
         .toU8a();
     const scaleEncodedCreator = api
-        .createType<AccountId>('AccountId', Did.toChain(creatorUri))
+        .createType<AccountId>('AccountId', creatorUri)
         .toU8a();
     const IdDigest = blake2AsHex(
         Uint8Array.from([
@@ -63,15 +60,15 @@ export function getUriForStatement(
 export function buildCordProof(
     digest: HexString,
     spaceUri: SpaceUri,
-    creatorUri: DidUri,
+    creatorUri: string,
     schemaUri?: SchemaUri,
-): IStatementEntry {
+): Cord.IStatementEntryAccountType {
     const stmtUri = getUriForStatement(digest, spaceUri, creatorUri);
 
-    const statement: IStatementEntry = {
+    const statement: Cord.IStatementEntryAccountType = {
         elementUri: stmtUri,
         digest,
-        creatorUri,
+        creatorAddress: creatorUri,
         spaceUri,
         schemaUri: schemaUri || undefined,
     };
@@ -84,27 +81,28 @@ export function updateBuildCordProof(
     stmtUri: StatementUri,
     digest: HexString,
     spaceUri: SpaceUri,
-    creatorUri: DidUri,
+    creatorUri: string,
     schemaUri?: SchemaUri,
-): IStatementEntry {
+): Cord.IStatementEntryAccountType {
     const statementUri = Cord.Identifier.updateStatementUri(stmtUri, digest);
 
     const statement = {
         elementUri: statementUri,
         digest,
-        creatorUri,
+        creatorAddress: creatorUri,
         spaceUri,
     };
     verifyDataStructure(statement);
     return statement;
-}
+}                                                         
 
 /* TODO: not sure why, the sign() of the key is giving the same output if treated as a function,
    but when compared with output of locally created sign, they are different */
 export async function addProof(
     vc: VerifiableCredential,
     callbackFn: SignCallback,
-    issuerDid: Cord.DidDocument,
+    issuerAddress: string,
+    issuerDid: string,
     network: ApiPromise,
     options: any,
 ) {
@@ -152,22 +150,22 @@ export async function addProof(
 
     /* proof 1 - CordProof */
     /* contains check for revoke */
-    let proof1: CordProof2024 | undefined = undefined;
+    let proof1: CordProof2025 | undefined = undefined;
     if (options.needStatementProof) {
         // SDK Method Name: Cord.statement.buildFromProperties //
         const statementEntry = buildCordProof(
             vc.credentialHash,
             options.spaceUri!,
-            issuerDid.uri,
+            issuerAddress,
             options.schemaUri ?? undefined,
         );
         let elem = statementEntry.elementUri.split(':');
         proof1 = {
-            type: 'CordProof2024',
+            type: 'CordProof2025',
             elementUri: statementEntry.elementUri,
             spaceUri: statementEntry.spaceUri,
             schemaUri: statementEntry.schemaUri,
-            creatorUri: issuerDid.uri,
+            creatorAddress: issuerAddress,
             digest: vc.credentialHash,
             identifier: `${elem[0]}:${elem[1]}:${elem[2]}`,
             genesisHash: genesisHash,
@@ -187,7 +185,7 @@ export async function updateAddProof(
     oldStmt: StatementUri,
     vc: VerifiableCredential,
     callbackFn: SignCallback,
-    issuerDid: Cord.DidDocument,
+    issuerDid: string,
     network: ApiPromise,
     options: any,
 ) {
@@ -235,23 +233,23 @@ export async function updateAddProof(
 
     /* proof 1 - CordProof */
     /* contains check for revoke */
-    let proof1: CordProof2024 | undefined = undefined;
+    let proof1: CordProof2025 | undefined = undefined;
     if (options.needStatementProof) {
         // SDK Method Name: Cord.statement.buildFromUpdateProperties //
         const statementEntry = updateBuildCordProof(
             oldStmt,
             vc.credentialHash,
             options.spaceUri!,
-            issuerDid.uri,
+            issuerDid,
             options.schemaUri ?? undefined,
         );
         let elem = statementEntry.elementUri.split(':');
         proof1 = {
-            type: 'CordProof2024',
+            type: 'CordProof2025',
             elementUri: statementEntry.elementUri,
             spaceUri: statementEntry.spaceUri,
             schemaUri: statementEntry.schemaUri,
-            creatorUri: issuerDid.uri,
+            creatorAddress: issuerDid.replace('did:web:',''),
             digest: vc.credentialHash,
             identifier: `${elem[0]}:${elem[1]}:${elem[2]}`,
             genesisHash: genesisHash,
@@ -270,8 +268,8 @@ export async function updateAddProof(
 export function buildVcFromContent(
     schema: Cord.ISchema,
     contents: IContents,
-    issuer: Cord.DidDocument,
-    holder: Cord.DidUri,
+    issuer: string,
+    holder: string,
     options: any,
 ) {
     Cord.Schema.verifyObjectAgainstSchema(contents, schema);
@@ -298,7 +296,7 @@ export function buildVcFromContent(
             'https://cord.network/2023/cred/v1',
         ],
         type: ['VerifiableCredential'],
-        issuer: issuer.uri,
+        issuer: issuer,
         issuanceDate: issuanceDate,
         expirationDate:expirationDate,
         credentialSubject,
@@ -320,8 +318,8 @@ export function buildVcFromContent(
 export async function buildEd25519VcFromContent(
     schema: any,
     contents: any,
-    issuer: any,
-    holder: any,
+    issuer: string,
+    holder: string,
     options: any,
 ) {
     // Cord.Schema.verifyObjectAgainstSchema(contents, schema);
@@ -337,6 +335,9 @@ export async function buildEd25519VcFromContent(
     const credentialSubject = {
         ...contents,
     };
+    if (holder) {
+        credentialSubject.id = holder;
+    }
 
     let vc: any = {
         ...schema,
@@ -363,7 +364,7 @@ export async function buildEd25519VcFromContent(
 
 export async function statementEntryToAnchorHash(
     vc: VerifiableCredential,
-    issuerDid: Cord.DidDocument,
+    issuerDid: string,
     options: any,
     statement?: any,
 ) {
@@ -376,14 +377,14 @@ export async function statementEntryToAnchorHash(
             statement,
             credHash,
             options.spaceUri,
-            issuerDid.uri,
+            issuerDid,
             options.schemaUri ?? undefined,
         );
     } else {
         statementEntry = buildCordProof(
             credHash,
             options.spaceUri,
-            issuerDid.uri,
+            issuerDid,
             undefined,
         );
     }
@@ -393,7 +394,7 @@ export async function statementEntryToAnchorHash(
 export async function addEd5519Proof(
     vc: any,
     callbackFn: SignCallback,
-    issuerDid: Cord.DidDocument,
+    issuerDid: string,
     network: ApiPromise,
     options: any,
 ) {
@@ -450,22 +451,22 @@ export async function addEd5519Proof(
 
         /* proof 1 - CordProof */
         /* contains check for revoke */
-        let proof1: CordProof2024 | undefined = undefined;
+        let proof1: CordProof2025 | undefined = undefined;
         if (options.needStatementProof) {
             // SDK Method Name: Cord.statement.buildFromProperties //
             const statementEntry = buildCordProof(
                 vc.credentialHash,
                 options.spaceUri!,
-                issuerDid.uri,
+                issuerDid,
                 options.schemaUri ?? undefined,
             );
             let elem = statementEntry.elementUri.split(':');
             proof1 = {
-                type: 'CordProof2024',
+                type: 'CordProof2025',
                 elementUri: statementEntry.elementUri,
                 spaceUri: statementEntry.spaceUri,
                 schemaUri: statementEntry.schemaUri,
-                creatorUri: issuerDid.uri,
+                creatorAddress: issuerDid.replace('did:web:',''),
                 digest: vc.credentialHash,
                 identifier: `${elem[0]}:${elem[1]}:${elem[2]}`,
                 genesisHash: genesisHash,
@@ -486,7 +487,7 @@ export async function updateEd25519Proof(
     oldStmt: StatementUri,
     vc: any,
     callbackFn: SignCallback,
-    issuerDid: Cord.DidDocument,
+    issuerDid: string,
     network: ApiPromise,
     options: any,
 ) {
@@ -543,23 +544,23 @@ export async function updateEd25519Proof(
 
         /* proof 1 - CordProof */
         /* contains check for revoke */
-        let proof1: CordProof2024 | undefined = undefined;
+        let proof1: CordProof2025 | undefined = undefined;
         if (options.needStatementProof) {
             // SDK Method Name: Cord.statement.buildFromUpdateProperties //
             const statementEntry = updateBuildCordProof(
                 oldStmt,
                 vc.credentialHash,
                 options.spaceUri!,
-                issuerDid.uri,
+                issuerDid,
                 options.schemaUri ?? undefined,
             );
             let elem = statementEntry.elementUri.split(':');
             proof1 = {
-                type: 'CordProof2024',
+                type: 'CordProof2025',
                 elementUri: statementEntry.elementUri,
                 spaceUri: statementEntry.spaceUri,
                 schemaUri: statementEntry.schemaUri,
-                creatorUri: issuerDid.uri,
+                creatorAddress: issuerDid.replace('did:web:',''),
                 digest: vc.credentialHash,
                 identifier: `${elem[0]}:${elem[1]}:${elem[2]}`,
                 genesisHash: genesisHash,

@@ -1,6 +1,6 @@
 {
     "name": "@cord.network/vc-export",
-    "version": "0.9.5-rc3",
+    "version": "0.9.6-rc1",
     "description": "Provides the option to build and verify VCs and VPs",
     "main": "./lib/cjs/index.js",
     "module": "./lib/esm/index.js",
@@ -42,7 +42,7 @@
         "typescript": "^5.6.2"
     },
     "dependencies": {
-        "@cord.network/sdk": "0.9.5-rc1",
+        "@cord.network/sdk": "0.9.6-rc1",
         "@digitalcredentials/ed25519-signature-2020": "^6.0.0",
         "@digitalcredentials/ed25519-verification-key-2020": "^4.0.0",
         "@transmute/did-key-ed25519": "^0.3.0-unstable.10",
