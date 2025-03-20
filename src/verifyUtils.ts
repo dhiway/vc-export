@@ -282,7 +282,9 @@ export async function verifyAgainstProperties(
       }
   
       if (creator) {
-        if (creator !== statementStatus.creatorAddress) {
+        const c1 = creator.replace('did:cord:', '').replace('did:web:', '').replace('.myn.social', '');
+        const c2 = statementStatus.creatorAddress.replace('did:cord:', '').replace('did:web:', '').replace('.myn.social', '');
+        if (c1 !== c2) {
           return {
             isValid: false,
             message: 'Statement and Digest creator does not match.',
@@ -443,7 +445,7 @@ export async function verifyProofElement(
       );
 
       if (!verificationResult.isValid) {
-          throw 'Failed to verify CordProof2025';
+          throw `Failed to verify CordProof2025 ${JSON.stringify(verificationResult)}`;
       }
       /* all good, no throw */
   }
@@ -460,11 +462,16 @@ export async function verifyProofElement(
         let message = obj.challenge ?? credHash;
         if (!message)
             throw 'the challenge/digest passed for verification is invalid';
-        await Cord.Did.verifyDidSignature({
+        if (obj.verificationMethod && obj.verificationMethod.includes('myn.social')) {
+          const publicKey = obj.verificationMethod.replace('did:web:','').replace('.myn.social','');
+          Cord.Utils.Crypto.verify(message, base58Decode(str), publicKey)
+        } else {
+          await Cord.Did.verifyDidSignature({
             message,
             signature: base58Decode(str),
             keyUri: obj.verificationMethod as unknown as Cord.DidResourceUri,
-        });
+         });
+        }
         /* all is good, no throw */
     }
     if (proof.type === 'CordSDRProof2024') {
