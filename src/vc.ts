@@ -275,7 +275,6 @@ export function buildVcFromContent(
     options: any,
 ) {
     Cord.Schema.verifyObjectAgainstSchema(contents, schema);
-
     const { evidenceIds, validFrom, validUntil, templates, labels } = options;
 
     const now = new Date();
@@ -286,7 +285,9 @@ export function buildVcFromContent(
     const validUntilString = validUntil
         ? validUntil.toISOString()
         : new Date(new Date().setFullYear(now.getFullYear() + 1)).toISOString();
-
+    const expirationDate = validUntil
+        ? validUntil.toISOString()
+        : new Date(new Date().setFullYear(now.getFullYear() + 1)).toISOString();
     const credentialSubject = {
         ...contents,
         id: holder,
@@ -299,6 +300,7 @@ export function buildVcFromContent(
         type: ['VerifiableCredential'],
         issuer: issuer.uri,
         issuanceDate: issuanceDate,
+        expirationDate:expirationDate,
         credentialSubject,
         validFrom: validFromString,
         validUntil: validUntilString,
