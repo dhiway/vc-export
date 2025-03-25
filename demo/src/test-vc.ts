@@ -153,23 +153,17 @@ async function main() {
     );
 
     console.log(`✅ Statement element registered - ${statement}`);
-/*
-    await verifyVC(vc);
 
-    const holderKeys = Cord.Utils.Keys.generateKeypairs(
-        holderMnemonic,
-        'sr25519',
-    );
+    await verifyVC(vc);
+    console.log(`✅ VC is verified from Chain - ${statement}`);
 
     let vp = await makePresentation(
         [vc],
         holderDid,
         async (data) => ({
-            signature: holderKeys.assertionMethod.sign(data),
-            keyType: holderKeys.assertionMethod.type,
-            keyUri: `${holderDid.uri}${
-                holderDid.assertionMethod![0].id
-            }` as Cord.DidResourceUri,
+            signature: holderAccount.sign(data),
+            keyType: holderAccount.type,
+            keyUri: `${holderDid}`,
         }),
         getChallenge(),
         api,
@@ -179,7 +173,7 @@ async function main() {
         },
     );
     console.dir(vp, { colors: true, depth: null });
-    */
+
     /* VP verification would 'throw' an error in case of error */
     //await verifyVP(vp);
 

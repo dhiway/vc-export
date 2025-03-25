@@ -703,7 +703,7 @@ export async function updateVcFromContent(
 
 export async function makePresentation(
     vcs: VerifiableCredential[],
-    holder: Cord.DidDocument,
+    holder: string,
     callbackFn: SignCallback,
     challenge: string,
     network: ApiPromise,
@@ -756,7 +756,7 @@ export async function makePresentation(
             'https://cord.network/2023/cred/v1',
         ],
         type: ['VerifiablePresentation'],
-        holder: holder.uri,
+        holder: holder,
         VerifiableCredential: copiedVcs,
         metadata: {},
         proof: proof0,

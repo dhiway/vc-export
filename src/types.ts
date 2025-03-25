@@ -43,7 +43,7 @@ export type VCProof = CordSDRProof2024 | ED25519Proof | CordProof2024 | CordProo
 export interface VerifiableCredential {
     '@context': Array<string>;
     type: Array<string>;
-    issuer: Cord.DidUri;
+    issuer: string;
     //id: string
     credentialHash: Cord.HexString;
     credentialSubject: IContents;
@@ -58,7 +58,7 @@ export interface VerifiablePresentation {
     '@context': Array<string>;
     type: Array<string>;
     proof: VCProof;
-    holder: Cord.DidUri;
+    holder: string;
     VerifiableCredential: VerifiableCredential[];
     [key: string]: any;
 }
