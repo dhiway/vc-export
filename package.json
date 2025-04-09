@@ -1,6 +1,6 @@
 {
     "name": "@cord.network/vc-export",
-    "version": "0.9.5-rc1",
+    "version": "0.9.5-rc3",
     "description": "Provides the option to build and verify VCs and VPs",
     "main": "./lib/cjs/index.js",
     "module": "./lib/esm/index.js",

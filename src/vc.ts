@@ -275,7 +275,7 @@ export function buildVcFromContent(
     options: any,
 ) {
     Cord.Schema.verifyObjectAgainstSchema(contents, schema);
-    const { evidenceIds, validFrom, validUntil, templates, labels } = options;
+    const { evidenceIds, validFrom, validUntil, templates, labels, metadata } = options ?? {};
 
     const now = new Date();
     const issuanceDate = now.toISOString();
@@ -308,6 +308,7 @@ export function buildVcFromContent(
             evidence: evidenceIds,
             template: templates,
             label: labels,
+	    ...metadata,
         },
         credentialSchema: schema,
     };
@@ -661,12 +662,14 @@ export async function updateVcFromContent(
     contents: IContents,
     vc: VerifiableCredential,
     validUntil: string | undefined,
+    options: any
 ) {
     Cord.Schema.verifyObjectAgainstSchema(
         contents,
         vc.credentialSchema as Cord.ISchema,
     );
 
+    const { metadata } = options ?? {};
     const now = new Date();
     const validFromString = now.toISOString();
     const validUntilString = validUntil ? validUntil : vc.validUntil;
@@ -688,7 +691,7 @@ export async function updateVcFromContent(
         credentialSubject,
         validFrom: validFromString,
         validUntil: validUntilString,
-        metadata: vc.metadata,
+        metadata: { ...vc.metadata, ...metadata },
         credentialSchema: vc.credentialSchema,
     };
 
