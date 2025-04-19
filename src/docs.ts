@@ -23,7 +23,7 @@ export async function getCordProofForDigest(
     options: any,
 ) {
     const genesisHash: string = await Cord.getGenesisHash(network);
-    const statementEntry = Cord.Statement.buildFromProperties(
+    const statementEntry = Cord.Entry.buildFromProperties(
         digest,
         options.spaceUri!,
         issuerDid,
@@ -32,8 +32,6 @@ export async function getCordProofForDigest(
     let elem = statementEntry.elementUri.split(':');
     let proof: CordProof2025 = {
         type: 'CordProof2025',
-        elementUri: statementEntry.elementUri,
-        spaceUri: statementEntry.spaceUri,
         creatorAddress: issuerDid,
         digest: digest,
         identifier: `${elem[0]}:${elem[1]}:${elem[2]}`,

@@ -42,7 +42,7 @@
         "typescript": "^5.6.2"
     },
     "dependencies": {
-        "@cord.network/sdk": "0.9.6-alpha3",
+        "@cord.network/sdk": "0.9.6-1",
         "@digitalcredentials/ed25519-signature-2020": "^6.0.0",
         "@digitalcredentials/ed25519-verification-key-2020": "^4.0.0",
         "@transmute/did-key-ed25519": "^0.3.0-unstable.10",
