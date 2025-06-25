@@ -3,9 +3,9 @@ import dayjs from 'moment';
 import * as Cord from '@cord.network/sdk';
 // import { verifyDataStructure } from '@cord.network/statement';
 // import { uriToIdentifier, buildStatementUri } from '@cord.network/identifier';
-import { Ed25519Signature2020 } from '@digitalcredentials/ed25519-signature-2020';
-import { Ed25519VerificationKey2020 } from '@digitalcredentials/ed25519-verification-key-2020';
-import { sign, purposes } from 'jsonld-signatures';
+// import { Ed25519Signature2020 } from '@digitalcredentials/ed25519-signature-2020';
+// import { Ed25519VerificationKey2020 } from '@digitalcredentials/ed25519-verification-key-2020';
+// import { sign, purposes } from 'jsonld-signatures';
 
 import {
     ApiPromise,
@@ -303,7 +303,7 @@ export function buildVcFromContent(
      */
     // Cord.Schema.verifyObjectAgainstSchema(contents, schema);
 
-    const { evidenceIds, validFrom, validUntil, templates, labels, metadata } = options ?? {};
+    const { evidenceIds, validFrom, validUntil, templates, labels, metadata, vcType } = options ?? {};
 
     const now = new Date();
     const issuanceDate = now.toISOString();
@@ -340,6 +340,9 @@ export function buildVcFromContent(
         },
         credentialSchema: schema,
     };
+    if (vcType) {
+       vc.type.push(vcType);
+    }
     vc.credentialHash = calculateVCHash(vc, undefined);
 
     return vc as VerifiableCredential;
@@ -611,6 +614,7 @@ export async function buildEd25519VcFromContent(
 //     }
 // }
 
+/*
 export async function signCredential(vc: VerifiableCredential, did: any) {
     try {
         let signedDoc;
@@ -649,6 +653,7 @@ export async function signCredential(vc: VerifiableCredential, did: any) {
         throw new Error('Error generating signed doc');
     }
 }
+*/
 
 export async function updateEd25519VcFromContent(
     contents: IContents,
