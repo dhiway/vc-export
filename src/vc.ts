@@ -101,7 +101,6 @@ export async function addProof(
     registryId: string,
     issuerAddress: string,
     /* TODO: Should we take in ProfileId too */
-    issuerDid: string,
     network: ApiPromise,
     options: any,
     proofId: string = uuidv4(),
@@ -282,6 +281,7 @@ export async function updateAddProof(
 
         /* TODO: Is there a requirement of updating the vc.id on update method? */
         // vc.id = proof1.identifier;
+        vc.id = vc.id;
     }
 
     vc['proof'] = [proof0];

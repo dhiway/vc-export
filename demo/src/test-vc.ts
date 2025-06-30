@@ -218,7 +218,6 @@ async function main() {
         }),
         registryId,
         issuerAccount.address,
-        issuerDid,
         api,
         {
             needSDR: true,
@@ -342,7 +341,7 @@ async function main() {
         colors: true,
     });
 
-    var updatedProof = updatedVc.proof ? updatedVc.proof[1]: {};
+    const updatedProof = updatedVc.proof ? updatedVc.proof[1]: {};
     /* TODO: Check on ideal way to pass entry-id */
     updatedProof.registryEntryId = entryIdentifier;
 
