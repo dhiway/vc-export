@@ -292,7 +292,7 @@ export async function updateAddProof(
 }
 
 export function buildVcFromContent(
-    schema: string,
+    schema: object,
     contents: IContents,
     issuer: string,
     holder: string,
