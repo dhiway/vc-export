@@ -265,8 +265,12 @@ async function main() {
     );
     console.dir(vp, { colors: true, depth: null });
 
-    /* VP verification would 'throw' an error in case of error */
-    //await verifyVP(vp);
+    console.log("Verifing VP...")
+    // NOTE: New step of sending a record map with respective VC:EntryId's,
+    // Required since we do not have Entry Id in the VC itself.
+    // Which can be potentially solved with doken-precomputer.
+    await verifyVP(vp, api, { [vc.id]: entryIdentifier });
+    console.log("VP Verified Succesfully!")
 
     /* sample for document hash anchor on CORD */
     /* Can be moved at last of the demo-script, so the flow is not broken */

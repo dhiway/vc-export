@@ -482,13 +482,25 @@ export async function verifyVC(
     return;
 }
 
-export async function verifyVP(vp: VerifiablePresentation, api: Cord.ApiPromise) {
-    /* proof check */
-    await verifyProofElement(vp.proof as VCProof, undefined, undefined, api);
-
-    let vcs = vp.VerifiableCredential;
-    for (let i = 0; i < vcs.length; i++) {
-        let vc = vcs[i];
-        await verifyVC(vc, api);
-    }
-}
+export async function verifyVP(
+     vp: VerifiablePresentation, 
+     api: Cord.ApiPromise,
+     vcEntryIdMap: Record<string, string>
+ ) {
+     /* proof check */
+     await verifyProofElement(vp.proof as VCProof, undefined, undefined, api);
+     
+     let vcs = vp.VerifiableCredential;
+     for (let i = 0; i < vcs.length; i++) {
+         let vc = vcs[i];
+          const entryId = vcEntryIdMap[vc.id];
+         // TODO: Handling here will not be optimal, because
+         // the CORD-PROOF-2025 is optional, not every VC will have it.
+         // Instead handle while calling VerifyVP, if the VC's Proof object type has
+         // CordProof2025 embedded.
+         // if (!entryId || !vc.id) {
+         //     throw new Error(`Missing entry identifier for VC with ID: ${vc.id}`);
+         // }
+         await verifyVC(vc, api, entryId);
+         }
+ }
