@@ -57,7 +57,7 @@ async function waitForEvent(api, eventCheck, fieldIndex) {
 }
 
 async function main() {
-  const networkAddress = /*process.env.NETWORK_ADDRESS || */ 'ws://127.0.0.1:9944';
+  const networkAddress = process.env.NETWORK_ADDRESS ||  'ws://127.0.0.1:9944';
   const stashUri = process.env.STASH_URI || '//Alice';
   const TRANSFER_AMOUNT = 100 * 10 ** 12; // 30 WAY for transactions
 

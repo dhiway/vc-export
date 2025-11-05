@@ -3,7 +3,7 @@ import { KeypairType } from '@polkadot/util-crypto/types';
 
 import * as Cord from '@cord.network/sdk';
 
-import { VerifiableCredential, IContents } from './types';
+import { VerifiableCredential, IContents } from './types.js';
 
 export function calculateVCHash(
     vc: VerifiableCredential,
