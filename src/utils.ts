@@ -1,8 +1,9 @@
 import { hexToBn } from '@polkadot/util';
+import { KeypairType } from '@polkadot/util-crypto/types';
 
 import * as Cord from '@cord.network/sdk';
 
-import { VerifiableCredential, IContents } from './types';
+import { VerifiableCredential, IContents } from './types.js';
 
 export function calculateVCHash(
     vc: VerifiableCredential,
@@ -63,7 +64,7 @@ export function calculateNewVCHash(
 
 function jsonLDcontents(
     contents: IContents,
-    schemaId: string,
+    schemaId: string | undefined,
 ): Record<string, unknown> {
     const result: Record<string, unknown> = {};
 
@@ -90,9 +91,9 @@ export function toJsonLD(
 
 export function makeStatementsJsonLD(
     contents: IContents,
-    schemaId: string,
+    schemaId: string | undefined,
 ): string[] {
-    const normalized = jsonLDcontents(contents, schemaId);
+    const normalized = jsonLDcontents(contents, undefined);
     return Object.entries(normalized).map(([key, value]) =>
         JSON.stringify({ [key]: value }),
     );
@@ -100,7 +101,7 @@ export function makeStatementsJsonLD(
 
 export function hashContents(
     contents: IContents,
-    schemaId: string,
+    schemaId: string | undefined,
     options: Cord.Utils.Crypto.HashingOptions & {
         selectedAttributes?: string[];
     } = {},
@@ -141,4 +142,27 @@ export function hashContents(
         nonceMap[digest] = nonce;
     }, {});
     return { hashes, nonceMap };
+}
+
+/**
+ * `createAccount` creates a new account from a mnemonic
+ * @param mnemonic - The mnemonic phrase to use to generate the account. If not provided, a new
+ * mnemonic will be generated.
+ * @returns An object with two properties: account and mnemonic.
+ */
+export function createAccount(
+    mnemonic = Cord.Utils.Crypto.mnemonicGenerate(24),
+    type: KeypairType = 'sr25519',
+): {
+    account: Cord.CordKeyringPair;
+    mnemonic: string;
+} {
+    const keyring = new Cord.Utils.Keyring({
+        ss58Format: 29,
+        type,
+    });
+    return {
+        account: keyring.addFromMnemonic(mnemonic) as Cord.CordKeyringPair,
+        mnemonic,
+    };
 }

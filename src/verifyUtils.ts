@@ -2,17 +2,7 @@ import { base58Decode } from '@polkadot/util-crypto';
 
 import * as Cord from '@cord.network/sdk';
 
-import {
-    IStatementDetails,
-    Option,
-    AccountId32,
-    StatementUri,
-    IStatementStatus,
-    HexString,
-    DidUri,
-    SpaceUri,
-    SchemaUri
-} from '@cord.network/types';
+import { verifyAgainstInputProperties2025 } from './entryUtils.js';
 
 import {
     VerifiableCredential,
@@ -20,175 +10,231 @@ import {
     IContents,
     VCProof,
     ED25519Proof,
-    CordSDRProof2024,
+    CordSDRProof2025,
     CordProof2024,
+    CordProof2025,
 } from './types';
 
-import * as Did from '@cord.network/did'
+import { makeStatementsJsonLD, calculateVCHash } from './utils.js';
 
-import { decodeStatementDetailsfromChain } from '@cord.network/statement';
+/* TODO: Fix later, commenting out */
+// export async function getDetailsfromChain(
+//     identifier: string
+//   ): Promise<IStatementDetails | null> {
+//     const api = Cord.ConfigService.get('api')
+//     const statementId = uriToIdentifier(identifier)
+  
+//     const statementEntry = await api.query.statement.statements(statementId)
+//     const decodedDetails = decodeStatementDetailsfromChain(
+//       statementEntry,
+//       identifier
+//     )
+//     if (decodedDetails === null) {
+//       throw new SDKErrors.StatementError(
+//         `There is no statement with the provided ID "${statementId}" present on the chain.`
+//       )
+//     }
+  
+//     return decodedDetails
+// }
 
-import {uriToIdentifier, uriToStatementIdAndDigest, identifierToUri} from '@cord.network/identifier';
+/* TODO: Commenting out, fix later. May not be required */
+// export async function fetchStatementDetailsfromChain(
+//     stmtUri: StatementUri
+//   ): Promise<IStatementStatus | null> {
+//     const api = Cord.ConfigService.get('api')
+//     const { identifier, digest } = uriToStatementIdAndDigest(stmtUri)
+  
+//     const statementDetails = await getDetailsfromChain(identifier)
+//     if (statementDetails === null) {
+//       throw new SDKErrors.StatementError(
+//         `There is no statement with the provided ID "${identifier}" present on the chain.`
+//       )
+//     }
+  
+//     const schemaUri =
+//       statementDetails.schemaUri !== undefined
+//         ? identifierToUri(statementDetails.schemaUri)
+//         : undefined
+  
+//     const spaceUri = identifierToUri(statementDetails.spaceUri)
+  
+//     const elementStatusDetails = await api.query.statement.entries(
+//       identifier,
+//       digest
+//     )
+  
+//     if (elementStatusDetails === null) {
+//       throw new SDKErrors.StatementError(
+//         `There is no entry with the provided ID "${identifier}" and digest "${digest}" present on the chain.`
+//       )
+//     }
+  
+//     const elementChainCreator = (
+//       elementStatusDetails as Option<AccountId32>
+//     ).unwrap()
+//     const elementCreator = Did.fromChain(elementChainCreator)
+  
+//     const elementStatus = await api.query.statement.revocationList(
+//       identifier,
+//       digest
+//     )
+  
+//     let revoked = false
+//     if (!elementStatus.isEmpty) {
+//       const encodedStatus = elementStatus.unwrap()
+//       revoked = encodedStatus.revoked.valueOf()
+//     }
+  
+//     const statementStatus: IStatementStatus = {
+//       uri: statementDetails.uri,
+//       digest,
+//       spaceUri,
+//       creatorUri: elementCreator,
+//       schemaUri,
+//       revoked,
+//     }
+  
+//     return statementStatus
+//   }
 
-import { SDKErrors } from '@cord.network/utils';
+  /* TODO: Commenting out, fix later. May not be required */
+  // export async function fetchStatementDetailsfromChain2025(
+  //   stmtUri: StatementUri
+  // ): Promise<Cord.IStatementStatusAccountType | null> {
+  //   const api = Cord.ConfigService.get('api')
+  //   const { identifier, digest } = uriToStatementIdAndDigest(stmtUri)
+  
+  //   const statementDetails = await getDetailsfromChain(identifier)
+  //   if (statementDetails === null) {
+  //     throw new SDKErrors.StatementError(
+  //       `There is no statement with the provided ID "${identifier}" present on the chain.`
+  //     )
+  //   }
+  
+  //   const schemaUri =
+  //     statementDetails.schemaUri !== undefined
+  //       ? identifierToUri(statementDetails.schemaUri)
+  //       : undefined
+  
+  //   const spaceUri = identifierToUri(statementDetails.spaceUri)
+  
+  //   const elementStatusDetails = await api.query.statement.entries(
+  //     identifier,
+  //     digest
+  //   )
+  
+  //   if (elementStatusDetails === null) {
+  //     throw new SDKErrors.StatementError(
+  //       `There is no entry with the provided ID "${identifier}" and digest "${digest}" present on the chain.`
+  //     )
+  //   }
+  
+  //   const elementChainCreator = (
+  //     elementStatusDetails as Option<AccountId32>
+  //   ).unwrap()
+  //   const elementCreator = Did.fromChain(elementChainCreator)
+  
+  //   const elementStatus = await api.query.statement.revocationList(
+  //     identifier,
+  //     digest
+  //   )
+  
+  //   let revoked = false
+  //   if (!elementStatus.isEmpty) {
+  //     const encodedStatus = elementStatus.unwrap()
+  //     revoked = encodedStatus.revoked.valueOf()
+  //   }
+  
+  //   const statementStatus: Cord.IStatementStatusAccountType = {
+  //     uri: statementDetails.uri,
+  //     digest,
+  //     spaceUri,
+  //     creatorAddress: elementCreator,
+  //     schemaUri,
+  //     revoked,
+  //   }
+  
+  //   return statementStatus
+  // }
 
-import { makeStatementsJsonLD, calculateVCHash } from './utils';
-
-export async function getDetailsfromChain(
-    identifier: string
-  ): Promise<IStatementDetails | null> {
-    const api = Cord.ConfigService.get('api')
-    const statementId = uriToIdentifier(identifier)
+/* TODO: Fix later, commenting out */
+// export async function verifyAgainstProperties(
+//     stmtUri: StatementUri,
+//     digest: HexString,
+//     creator?: DidUri,
+//     spaceuri?: SpaceUri,
+//     schemaUri?: SchemaUri
+//   ): Promise<{ isValid: boolean; message: string }> {
+//     try {
+//       const statementStatus = await fetchStatementDetailsfromChain(stmtUri)
   
-    const statementEntry = await api.query.statement.statements(statementId)
-    const decodedDetails = decodeStatementDetailsfromChain(
-      statementEntry,
-      identifier
-    )
-    if (decodedDetails === null) {
-      throw new SDKErrors.StatementError(
-        `There is no statement with the provided ID "${statementId}" present on the chain.`
-      )
-    }
+//       if (!statementStatus) {
+//         return {
+//           isValid: false,
+//           message: `Statement details for "${digest}" not found.`,
+//         }
+//       }
   
-    return decodedDetails
-  }
-
-export async function fetchStatementDetailsfromChain(
-    stmtUri: StatementUri
-  ): Promise<IStatementStatus | null> {
-    const api = Cord.ConfigService.get('api')
-    const { identifier, digest } = uriToStatementIdAndDigest(stmtUri)
+//       if (digest !== statementStatus.digest) {
+//         return {
+//           isValid: false,
+//           message: 'Digest does not match with Statement Digest.',
+//         }
+//       }
   
-    const statementDetails = await getDetailsfromChain(identifier)
-    if (statementDetails === null) {
-      throw new SDKErrors.StatementError(
-        `There is no statement with the provided ID "${identifier}" present on the chain.`
-      )
-    }
+//       if (statementStatus?.revoked) {
+//         return {
+//           isValid: false,
+//           message: `Statement "${stmtUri}" Revoked.`,
+//         }
+//       }
   
-    const schemaUri =
-      statementDetails.schemaUri !== undefined
-        ? identifierToUri(statementDetails.schemaUri)
-        : undefined
+//       if (creator) {
+//         if (creator !== statementStatus.creatorUri) {
+//           return {
+//             isValid: false,
+//             message: 'Statement and Digest creator does not match.',
+//           }
+//         }
+//       }
   
-    const spaceUri = identifierToUri(statementDetails.spaceUri)
+//       if (spaceuri) {
+//         if (spaceuri !== statementStatus.spaceUri) {
+//           return {
+//             isValid: false,
+//             message: 'Statement and Digest space details does not match.',
+//           }
+//         }
+//       }
   
-    const elementStatusDetails = await api.query.statement.entries(
-      identifier,
-      digest
-    )
+//       if (schemaUri) {
+//         if (schemaUri !== statementStatus.schemaUri) {
+//           return {
+//             isValid: false,
+//             message: 'Statement and Digest schema details does not match.',
+//           }
+//         }
+//       }
   
-    if (elementStatusDetails === null) {
-      throw new SDKErrors.StatementError(
-        `There is no entry with the provided ID "${identifier}" and digest "${digest}" present on the chain.`
-      )
-    }
-  
-    const elementChainCreator = (
-      elementStatusDetails as Option<AccountId32>
-    ).unwrap()
-    const elementCreator = Did.fromChain(elementChainCreator)
-  
-    const elementStatus = await api.query.statement.revocationList(
-      identifier,
-      digest
-    )
-  
-    let revoked = false
-    if (!elementStatus.isEmpty) {
-      const encodedStatus = elementStatus.unwrap()
-      revoked = encodedStatus.revoked.valueOf()
-    }
-  
-    const statementStatus: IStatementStatus = {
-      uri: statementDetails.uri,
-      digest,
-      spaceUri,
-      creatorUri: elementCreator,
-      schemaUri,
-      revoked,
-    }
-  
-    return statementStatus
-  }
-  
-export async function verifyAgainstProperties(
-    stmtUri: StatementUri,
-    digest: HexString,
-    creator?: DidUri,
-    spaceuri?: SpaceUri,
-    schemaUri?: SchemaUri
-  ): Promise<{ isValid: boolean; message: string }> {
-    try {
-      const statementStatus = await fetchStatementDetailsfromChain(stmtUri)
-  
-      if (!statementStatus) {
-        return {
-          isValid: false,
-          message: `Statement details for "${digest}" not found.`,
-        }
-      }
-  
-      if (digest !== statementStatus.digest) {
-        return {
-          isValid: false,
-          message: 'Digest does not match with Statement Digest.',
-        }
-      }
-  
-      if (statementStatus?.revoked) {
-        return {
-          isValid: false,
-          message: `Statement "${stmtUri}" Revoked.`,
-        }
-      }
-  
-      if (creator) {
-        if (creator !== statementStatus.creatorUri) {
-          return {
-            isValid: false,
-            message: 'Statement and Digest creator does not match.',
-          }
-        }
-      }
-  
-      if (spaceuri) {
-        if (spaceuri !== statementStatus.spaceUri) {
-          return {
-            isValid: false,
-            message: 'Statement and Digest space details does not match.',
-          }
-        }
-      }
-  
-      if (schemaUri) {
-        if (schemaUri !== statementStatus.schemaUri) {
-          return {
-            isValid: false,
-            message: 'Statement and Digest schema details does not match.',
-          }
-        }
-      }
-  
-      return {
-        isValid: true,
-        message:
-          'Digest properties provided are valid and matches the statement details.',
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        return {
-          isValid: false,
-          message: `Error verifying properties: ${error}`,
-        }
-      }
-      return {
-        isValid: false,
-        message: 'An unknown error occurred while verifying the properties.',
-      }
-    }
-  }
+//       return {
+//         isValid: true,
+//         message:
+//           'Digest properties provided are valid and matches the statement details.',
+//       }
+//     } catch (error) {
+//       if (error instanceof Error) {
+//         return {
+//           isValid: false,
+//           message: `Error verifying properties: ${error}`,
+//         }
+//       }
+//       return {
+//         isValid: false,
+//         message: 'An unknown error occurred while verifying the properties.',
+//       }
+//     }
+//   }
 
 export function verifyDisclosedAttributes(
     content: IContents,
@@ -197,11 +243,11 @@ export function verifyDisclosedAttributes(
     hashes: string[],
     attributes?: string[],
 ): void {
+
     // apply defaults
     // use canonicalisation algorithm to make hashable statement strings
-    if (!schemaId) throw 'schemaId is needed for SDR verification';
 
-    const statements = makeStatementsJsonLD(content, schemaId);
+    const statements = makeStatementsJsonLD(content, undefined);
     let filteredStatements = statements;
     if (attributes && attributes.length) {
         filteredStatements = Cord.Utils.DataUtils.filterStatements(
@@ -255,6 +301,8 @@ export async function verifyProofElement(
     proof: VCProof,
     credHash: string | Cord.HexString | undefined,
     vc: VerifiableCredential | undefined,
+    api: Cord.ApiPromise,
+    entryId?: string,
 ) {
     if (proof.type === 'CordProof2024') {
         /* verify the proof */
@@ -270,20 +318,49 @@ export async function verifyProofElement(
         }
         
         /* SDK Method Name: Cord.Statament.verifyAgainstProperties */
-        const verificationResult = await verifyAgainstProperties(
-            obj.elementUri,
-            obj.digest,
-            obj.creatorUri,
-            obj.spaceUri,
-            obj.schemaUri,
-        );
+        /* TODO: Should we disable proof-2024 as we dont have statement anymore */
+        // const verificationResult = await verifyAgainstProperties(
+        //     obj.elementUri,
+        //     obj.digest,
+        //     obj.creatorUri,
+        //     obj.spaceUri,
+        //     obj.schemaUri,
+        // );
 
-        if (!verificationResult.isValid) {
-            throw 'Failed to verify CordProof2024';
-        }
+        // if (!verificationResult.isValid) {
+        //     throw 'Failed to verify CordProof2024';
+        // }
         /* all good, no throw */
     }
-    if (proof.type === 'Ed25519Signature2020') {
+    if (proof.type === 'CordProof2025') {
+      /* verify the proof */
+      let obj = proof as unknown as CordProof2025;
+
+      if (obj.tx_hash !== credHash) {
+          throw 'Credential Digest Mismatch';
+      }
+      
+      /* TODO: Check how can we do this, since when we create a proof, we do not have the elementUri */
+      // Currently taking it as a parameter
+      // if (
+      //     obj.elementUri !== `${obj.identifier}:${credHash.replace('0x', '')}`
+      // ) {
+      //     throw 'elementUri mismatch';
+      // }
+      
+      const verificationResult = await verifyAgainstInputProperties2025(
+        entryId as string,
+        obj.tx_hash,
+        /* TODO: Check if profile-id is required for verification*/
+      );
+
+      if (!verificationResult.isValid) {
+          throw `Failed to verify CordProof2025 ${JSON.stringify(verificationResult)}`;
+      }
+      /* all good, no throw */
+  }
+  if (proof.type === 'Ed25519Signature2020') {
+        /* TODO: Commenting out, fix later */
         let obj = proof as unknown as ED25519Proof;
         let signature: any = obj.proofValue;
         /* this 'z' is from digitalbazaar/ed25519signature2020 project */
@@ -296,15 +373,48 @@ export async function verifyProofElement(
         let message = obj.challenge ?? credHash;
         if (!message)
             throw 'the challenge/digest passed for verification is invalid';
-        await Cord.Did.verifyDidSignature({
-            message,
-            signature: base58Decode(str),
-            keyUri: obj.verificationMethod as unknown as Cord.DidResourceUri,
-        });
+        
+        /* Old way of doing it */
+        // if (obj.verificationMethod && obj.verificationMethod.includes('myn.social')) {
+        //   const publicKey = obj.verificationMethod.replace('did:web:','').replace('.myn.social','');
+        //   console.log("publicKey", publicKey);
+        //   Cord.Utils.Crypto.verify(message, base58Decode(str), publicKey)
+        // } else {
+        //   await Cord.Did.verifyDidSignature({
+        //     message,
+        //     signature: base58Decode(str),
+        //     keyUri: obj.verificationMethod as unknown as Cord.DidResourceUri,
+        //  });
+        // }
+        
+        if (obj.verificationMethod) {
+            const profileId = obj.verificationMethod.replace('did:cord:', ''); // TODO: Handle other prefixes later
+            let profileMetadata;
+
+            try {
+                profileMetadata = await Cord.Utils.DidResolver.queryProfiles(profileId.toString(), api);
+
+                if (!profileMetadata?.latestKey) {
+                    throw new Error(`Profile's latestKey is missing for profileId: ${profileId}`);
+                }
+            } catch (error) {
+                throw new Error(`Failed to query profile ${profileId}: ${error instanceof Error ? error.message : String(error)}`);
+            } 
+
+            try {
+                Cord.Utils.Crypto.verify(message, base58Decode(str), profileMetadata.latestKey);
+            } catch (error) {
+                throw new Error(`Failed to verify signature for Profile did:cord:${profileId} ${error instanceof Error ? error.message : String(error)}`);
+            }
+        }
+
         /* all is good, no throw */
     }
-    if (proof.type === 'CordSDRProof2024') {
-        let obj = proof as unknown as CordSDRProof2024;
+    if (proof.type === 'CordSDRProof2025') {
+        // TOOD: Fix below method without schema-id
+        // So have commented it out, fix later
+
+        let obj = proof as unknown as CordSDRProof2025;
 
         /* make sure from whats is present in content, we get back the same content nonces */
         let subject = vc?.credentialSubject
@@ -315,7 +425,7 @@ export async function verifyProofElement(
 
         verifyDisclosedAttributes(
             subject,
-            vc?.credentialSchema?.$id,
+            undefined, // Sending undefined for SchemaId
             obj.nonceMap,
             obj.hashes,
             Object.keys(subject),
@@ -323,14 +433,18 @@ export async function verifyProofElement(
     }
 }
 
-export async function verifyVC(vc: VerifiableCredential): Promise<void> {
+export async function verifyVC(
+  vc: VerifiableCredential, 
+  api: Cord.ApiPromise,
+  entryId?: string,
+): Promise<void> {
     /* proof check */
     const proofs: any = vc.proof;
     if (!proofs.length) {
         let hashes =
-            proofs.type === 'CordSDRProof2024' ? proofs.hashes : undefined;
+            proofs.type === 'CordSDRProof2025' ? proofs.hashes : undefined;
         let credHash = calculateVCHash(vc, hashes);
-        await verifyProofElement(vc.proof as VCProof, credHash, vc);
+        await verifyProofElement(vc.proof as VCProof, credHash, vc, api, entryId);
         return;
     }
 
@@ -341,7 +455,7 @@ export async function verifyVC(vc: VerifiableCredential): Promise<void> {
     for (let i = 0; i < proofs.length; i++) {
         let obj = proofs[i];
         if (!obj) continue;
-        if (obj.type === 'CordSDRProof2024') {
+        if (obj.type === 'CordSDRProof2025') {
             credHash = calculateVCHash(vc, obj.hashes);
         }
     }
@@ -351,18 +465,42 @@ export async function verifyVC(vc: VerifiableCredential): Promise<void> {
     for (let i = 0; i < proofs.length; i++) {
         let obj = proofs[i];
         if (!obj) continue;
-        await verifyProofElement(obj, credHash, vc);
+
+        /* TOOD: Check if this is the right way to do.
+         * In future we will have to disable support for CordProof2024.
+         */
+        if (obj.type === 'CordProof2025' && !entryId) {
+          throw new Error('Entry ID is required for CordProof2025 verification');
+        }
+
+        if (obj.type === 'CordProof2025') {
+          await verifyProofElement(obj, credHash, vc, api, entryId);
+        } else { 
+            await verifyProofElement(obj, credHash, vc, api);
+        }
     }
     return;
 }
 
-export async function verifyVP(vp: VerifiablePresentation) {
-    /* proof check */
-    await verifyProofElement(vp.proof as VCProof, undefined, undefined);
-
-    let vcs = vp.VerifiableCredential;
-    for (let i = 0; i < vcs.length; i++) {
-        let vc = vcs[i];
-        await verifyVC(vc);
-    }
-}
+export async function verifyVP(
+     vp: VerifiablePresentation, 
+     api: Cord.ApiPromise,
+     vcEntryIdMap: Record<string, string>
+ ) {
+     /* proof check */
+     await verifyProofElement(vp.proof as VCProof, undefined, undefined, api);
+     
+     let vcs = vp.VerifiableCredential;
+     for (let i = 0; i < vcs.length; i++) {
+         let vc = vcs[i];
+          const entryId = vcEntryIdMap[vc.id];
+         // TODO: Handling here will not be optimal, because
+         // the CORD-PROOF-2025 is optional, not every VC will have it.
+         // Instead handle while calling VerifyVP, if the VC's Proof object type has
+         // CordProof2025 embedded.
+         // if (!entryId || !vc.id) {
+         //     throw new Error(`Missing entry identifier for VC with ID: ${vc.id}`);
+         // }
+         await verifyVC(vc, api, entryId);
+         }
+ }

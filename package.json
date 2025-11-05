@@ -1,6 +1,6 @@
 {
     "name": "@cord.network/vc-export",
-    "version": "0.9.5-rc3",
+    "version": "0.9.6-11",
     "description": "Provides the option to build and verify VCs and VPs",
     "main": "./lib/cjs/index.js",
     "module": "./lib/esm/index.js",
@@ -19,11 +19,12 @@
         "build": "yarn build:ts",
         "build:ts": "yarn build:cjs && yarn build:esm",
         "build:cjs": "tsc --declaration -p tsconfig.build.json && echo '{\"type\":\"commonjs\"}' > ./lib/cjs/package.json",
-        "build:esm": "tsc --declaration -p tsconfig.esm.json && echo '{\"type\":\"module\"}' > ./lib/esm/package.json"
+        "build:esm": "tsc --declaration -p tsconfig.esm.json && echo '{\"type\":\"module\"}' > ./lib/esm/package.json",
+        "test-vc": "tsx --no-cache demo/src/test-vc.ts"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/dhiway/cord.js.git"
+        "url": "git+https://github.com/dhiway/cord.js.git"
     },
     "engines": {
         "node": ">=18.0"
@@ -38,20 +39,17 @@
         "@types/uuid": "^10.0.0",
         "dotenv": "^16.3.1",
         "jsonabc": "^2.3.1",
+        "multiformats": "^9.0.0",
         "prettier": "^3.4.1",
         "typescript": "^5.6.2"
     },
     "dependencies": {
-        "@cord.network/sdk": "0.9.5-rc1",
-        "@digitalcredentials/ed25519-signature-2020": "^6.0.0",
-        "@digitalcredentials/ed25519-verification-key-2020": "^4.0.0",
-        "@transmute/did-key-ed25519": "^0.3.0-unstable.10",
+        "@cord.network/sdk": "0.9.6-10",
         "bs58": "^6.0.0",
-        "ethereum-cryptography": "^3.0.0",
         "express": "^4.21.1",
         "jsonld": "^8.3.2",
-        "jsonld-signatures": "^11.5.0",
         "moment": "^2.29.4",
-        "ts-node": "^10.9.1"
+        "ts-node": "^10.9.1",
+        "uuid": "^11.1.0"
     }
 }

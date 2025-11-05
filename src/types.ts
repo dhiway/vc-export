@@ -25,6 +25,13 @@ export interface CordProof2024 extends VCProofType, Cord.IStatementEntry {
     genesisHash: string;
 }
 
+export interface CordProof2025 extends VCProofType, Omit<Cord.IRegistryEntry, 'blob'> {
+    //identifier: string; /* TODO: Is this user driven or the token from creation */
+    genesisHash: string;
+    issuerAddress: string;
+    // blob: string | null;
+}
+
 export interface CordSDRProof2024 extends VCProofType {
     defaultDigest: string;
     hashes: Array<Cord.HexString>;
@@ -32,17 +39,25 @@ export interface CordSDRProof2024 extends VCProofType {
     genesisHash: string;
 }
 
-export type VCProof = CordSDRProof2024 | ED25519Proof | CordProof2024;
+export interface CordSDRProof2025 extends VCProofType {
+    defaultDigest: string;
+    hashes: Array<Cord.HexString>;
+    nonceMap: Record<string, string>;
+    genesisHash: string;
+}
+
+export type VCProof = CordSDRProof2024 | CordSDRProof2025 | ED25519Proof | CordProof2024 | CordProof2025;
 
 /* TODO: make it more clear, and better - followup PRs */
 export interface VerifiableCredential {
     '@context': Array<string>;
     type: Array<string>;
-    issuer: Cord.DidUri;
+    issuer: string;
+    /* TODO: Check requirement of id */
     //id: string
     credentialHash: Cord.HexString;
     credentialSubject: IContents;
-    credentialSchema: Cord.ISchema | undefined;
+    credentialSchema: string | undefined;
     proof: Array<VCProof> | VCProof;
     [key: string]: any;
 }
@@ -53,12 +68,28 @@ export interface VerifiablePresentation {
     '@context': Array<string>;
     type: Array<string>;
     proof: VCProof;
-    holder: Cord.DidUri;
+    holder: string;
     VerifiableCredential: VerifiableCredential[];
     [key: string]: any;
 }
 
+export interface SignResponseData {
+    /**
+     * Result of the signing.
+     */
+    signature: Uint8Array
+    /**
+     * The did key uri used for signing.
+     */
+    keyUri: string
+    /**
+     * The did key type used for signing.
+     */
+    keyType: Cord.DidVerificationKey['type']
+  }
+  
+
 /**
  * A callback function to sign data.
  */
-export type SignCallback = (signData: any) => Promise<Cord.SignResponseData>;
+export type SignCallback = (signData: any) => Promise<SignResponseData>;

@@ -1,24 +1,13 @@
 import { base58Encode } from '@polkadot/util-crypto';
 import dayjs from 'moment';
 import * as Cord from '@cord.network/sdk';
-import { verifyDataStructure } from '@cord.network/statement';
-import { uriToIdentifier, buildStatementUri } from '@cord.network/identifier';
-import * as Did from '@cord.network/did';
-import { Ed25519Signature2020 } from '@digitalcredentials/ed25519-signature-2020';
-import { Ed25519VerificationKey2020 } from '@digitalcredentials/ed25519-verification-key-2020';
-import { sign, purposes } from 'jsonld-signatures';
+// import { verifyDataStructure } from '@cord.network/statement';
+// import { uriToIdentifier, buildStatementUri } from '@cord.network/identifier';
+// import { Ed25519Signature2020 } from '@digitalcredentials/ed25519-signature-2020';
+// import { Ed25519VerificationKey2020 } from '@digitalcredentials/ed25519-verification-key-2020';
+// import { sign, purposes } from 'jsonld-signatures';
 
 import {
-    HexString,
-    DidUri,
-    SpaceUri,
-    SchemaUri,
-    StatementUri,
-    IStatementEntry,
-    H256,
-    Bytes,
-    AccountId,
-    blake2AsHex,
     ApiPromise,
 } from '@cord.network/types';
 
@@ -27,111 +16,121 @@ import {
     VerifiablePresentation,
     IContents,
     ED25519Proof,
-    CordSDRProof2024,
-    CordProof2024,
+    CordSDRProof2025,
+    CordProof2025,
     SignCallback,
 } from './types';
 
-import { hashContents, calculateVCHash, calculateNewVCHash } from './utils';
+import { hashContents, calculateVCHash, /* calculateNewVCHash */} from './utils.js';
+import { v4 as uuidv4 } from 'uuid';
 
-export function getUriForStatement(
-    digest: HexString,
-    spaceUri: SpaceUri,
-    creatorUri: DidUri,
-): StatementUri {
-    const api = Cord.ConfigService.get('api');
+// export function getUriForStatement(
+//     digest: HexString,
+//     spaceUri: SpaceUri,
+//     creatorUri: string,
+// ): StatementUri {
+//     const api = Cord.ConfigService.get('api');
 
-    const scaleEncodedSchema = api.createType<H256>('H256', digest).toU8a();
-    const scaleEncodedSpace = api
-        .createType<Bytes>('Bytes', uriToIdentifier(spaceUri))
-        .toU8a();
-    const scaleEncodedCreator = api
-        .createType<AccountId>('AccountId', Did.toChain(creatorUri))
-        .toU8a();
-    const IdDigest = blake2AsHex(
-        Uint8Array.from([
-            ...scaleEncodedSchema,
-            ...scaleEncodedSpace,
-            ...scaleEncodedCreator,
-        ]),
-    );
-    const statementUri = buildStatementUri(IdDigest, digest);
+//     const scaleEncodedSchema = api.createType<H256>('H256', digest).toU8a();
+//     const scaleEncodedSpace = api
+//         .createType<Bytes>('Bytes', uriToIdentifier(spaceUri))
+//         .toU8a();
+//     const scaleEncodedCreator = api
+//         .createType<AccountId>('AccountId', creatorUri)
+//         .toU8a();
+//     const IdDigest = blake2AsHex(
+//         Uint8Array.from([
+//             ...scaleEncodedSchema,
+//             ...scaleEncodedSpace,
+//             ...scaleEncodedCreator,
+//         ]),
+//     );
+//     const statementUri = buildStatementUri(IdDigest, digest);
 
-    return statementUri;
-}
+//     return statementUri;
+// }
 
-export function buildCordProof(
-    digest: HexString,
-    spaceUri: SpaceUri,
-    creatorUri: DidUri,
-    schemaUri?: SchemaUri,
-): IStatementEntry {
-    const stmtUri = getUriForStatement(digest, spaceUri, creatorUri);
+// export function buildCordProof(
+//     digest: HexString,
+//     spaceUri: SpaceUri,
+//     creatorUri: string,
+//     schemaUri?: SchemaUri,
+// ): Cord.IStatementEntryAccountType {
+//     const stmtUri = getUriForStatement(digest, spaceUri, creatorUri);
 
-    const statement: IStatementEntry = {
-        elementUri: stmtUri,
-        digest,
-        creatorUri,
-        spaceUri,
-        schemaUri: schemaUri || undefined,
-    };
+//     const statement: Cord.IStatementEntryAccountType = {
+//         elementUri: stmtUri,
+//         digest,
+//         creatorAddress: creatorUri,
+//         spaceUri,
+//         schemaUri: schemaUri || undefined,
+//     };
 
-    verifyDataStructure(statement);
-    return statement;
-}
+//     verifyDataStructure(statement);
+//     return statement;
+// }
 
-export function updateBuildCordProof(
-    stmtUri: StatementUri,
-    digest: HexString,
-    spaceUri: SpaceUri,
-    creatorUri: DidUri,
-    schemaUri?: SchemaUri,
-): IStatementEntry {
-    const statementUri = Cord.Identifier.updateStatementUri(stmtUri, digest);
+// export function updateBuildCordProof(
+//     stmtUri: StatementUri,
+//     digest: HexString,
+//     spaceUri: SpaceUri,
+//     creatorUri: string,
+//     schemaUri?: SchemaUri,
+// ): Cord.IStatementEntryAccountType {
+//     const statementUri = Cord.Identifier.updateStatementUri(stmtUri, digest);
 
-    const statement = {
-        elementUri: statementUri,
-        digest,
-        creatorUri,
-        spaceUri,
-    };
-    verifyDataStructure(statement);
-    return statement;
-}
+//     const statement = {
+//         elementUri: statementUri,
+//         digest,
+//         creatorAddress: creatorUri,
+//         spaceUri,
+//     };
+//     verifyDataStructure(statement);
+//     return statement;
+// }                                                         
+
+
+
 
 /* TODO: not sure why, the sign() of the key is giving the same output if treated as a function,
    but when compared with output of locally created sign, they are different */
 export async function addProof(
     vc: VerifiableCredential,
     callbackFn: SignCallback,
-    issuerDid: Cord.DidDocument,
+    /* TODO: Should below be the profile-id or the ss58 Account address */
+    registryId: string,
+    issuerAddress: string,
+    /* TODO: Should we take in ProfileId too */
     network: ApiPromise,
     options: any,
+    proofId: string = uuidv4(),
 ) {
     const now = dayjs();
     let credHash: Cord.HexString = calculateVCHash(vc, undefined);
     let genesisHash: string = await Cord.getGenesisHash(network);
 
     /* TODO: Bring selective disclosure here */
-    let proof2: CordSDRProof2024 | undefined = undefined;
+    let proof2: CordSDRProof2025 | undefined = undefined;
     if (options.needSDR) {
         let contents = { ...vc.credentialSubject };
         delete contents.id;
 
-        let hashes = hashContents(contents, options.schemaUri);
+        let hashes = hashContents(contents, undefined);
 
         /* proof 2 - ConentNonces for selective disclosure */
         /* This will enable the selective disclosure. This may not be compatible with the normal VC */
         /* This also would change the 'credentialSubject' */
         proof2 = {
-            type: 'CordSDRProof2024',
+            type: 'CordSDRProof2025',
             defaultDigest: credHash,
             hashes: hashes.hashes,
             nonceMap: hashes.nonceMap,
             genesisHash: genesisHash,
         };
-        let vocabulary = `${options.schemaUri}#`;
-        vc.credentialSubject['@context'] = { vocab: vocabulary };
+        /* Setting context to default as in makeVP */
+        // let vocabulary = `${options.schemaUri}#`;
+        // vc.credentialSubject['@context'] = { vocab: vocabulary };
+        vc.credentialSubject['@context'] = 'https://cord.network/2023/cred/v1';
         credHash = calculateVCHash(vc, hashes.hashes);
     }
     vc.credentialHash = credHash;
@@ -139,6 +138,9 @@ export async function addProof(
     /* proof 0 - Ed25519 */
     /* validates ownership by checking the signature against the DID */
 
+    /* TODO: Check if callback is actually required now. 
+     * We even removed it from SDK.
+     */
     let cbData = await callbackFn(vc.credentialHash);
 
     let proof0: ED25519Proof = {
@@ -152,28 +154,36 @@ export async function addProof(
 
     /* proof 1 - CordProof */
     /* contains check for revoke */
-    let proof1: CordProof2024 | undefined = undefined;
-    if (options.needStatementProof) {
-        // SDK Method Name: Cord.statement.buildFromProperties //
-        const statementEntry = buildCordProof(
+    let proof1: CordProof2025 | undefined = undefined;
+    if (options.needEntryProof) {
+        /* TODO: I think since we dont have dependency of api, we can directly use from SDK's methods */
+        /* SDK Method Name: Cord.Entry.buildFromProperties */
+        // Technically return below and proof.
+        Cord.Entry.createEntriesProperties(
+            registryId,
             vc.credentialHash,
-            options.spaceUri!,
-            issuerDid.uri,
-            options.schemaUri ?? undefined,
+            null, // TODO: Check requirement of blob here
         );
-        let elem = statementEntry.elementUri.split(':');
+
         proof1 = {
-            type: 'CordProof2024',
-            elementUri: statementEntry.elementUri,
-            spaceUri: statementEntry.spaceUri,
-            schemaUri: statementEntry.schemaUri,
-            creatorUri: issuerDid.uri,
-            digest: vc.credentialHash,
-            identifier: `${elem[0]}:${elem[1]}:${elem[2]}`,
+            type: 'CordProof2025',
+            /* TODO: We wont be having the elementUri at this moment before its creation, 
+             * think of the steps to be taken for filling up 'elementUri' and 'identifier'.
+             */
+            // elementUri: statementEntry.elementUri,
+            // spaceUri: statementEntry.spaceUri,
+            // schemaUri: statementEntry.schemaUri,
+            registryId: registryId,
+            issuerAddress: issuerAddress,
+            tx_hash: vc.credentialHash,
+            /* Check how we can add identifier here, change would be needed in types.ts too */
+            // identifier: `${elem[0]}:${elem[1]}:${elem[2]}`,
             genesisHash: genesisHash,
+            // /* TODO: Fix removal of blob later */
+            // blob: null,
         };
 
-        vc.id = proof1.identifier;
+        vc.id = proofId;
     }
 
     vc['proof'] = [proof0];
@@ -184,10 +194,11 @@ export async function addProof(
 }
 
 export async function updateAddProof(
-    oldStmt: StatementUri,
+    registryId: string,
+    registryEntryId: string,
     vc: VerifiableCredential,
     callbackFn: SignCallback,
-    issuerDid: Cord.DidDocument,
+    issuerAddress: string,
     network: ApiPromise,
     options: any,
 ) {
@@ -196,25 +207,27 @@ export async function updateAddProof(
     let genesisHash: string = await Cord.getGenesisHash(network);
 
     /* TODO: Bring selective disclosure here */
-    let proof2: CordSDRProof2024 | undefined = undefined;
+    let proof2: CordSDRProof2025 | undefined = undefined;
     if (options.needSDR) {
         let contents = { ...vc.credentialSubject };
         delete contents.id;
 
-        let hashes = hashContents(contents, options.schemaUri);
+        let hashes = hashContents(contents, undefined);
 
         /* proof 2 - ConentNonces for selective disclosure */
         /* This will enable the selective disclosure. This may not be compatible with the normal VC */
         /* This also would change the 'credentialSubject' */
         proof2 = {
-            type: 'CordSDRProof2024',
+            type: 'CordSDRProof2025',
             defaultDigest: credHash,
             hashes: hashes.hashes,
             nonceMap: hashes.nonceMap,
             genesisHash: genesisHash,
         };
-        let vocabulary = `${options.schemaUri}#`;
-        vc.credentialSubject['@context'] = { vocab: vocabulary };
+        /* Setting context to default as in makeVP */
+        // let vocabulary = `${options.schemaUri}#`;
+        // vc.credentialSubject['@context'] = { vocab: vocabulary };
+        vc.credentialSubject['@context'] = 'https://cord.network/2023/cred/v1';
         credHash = calculateVCHash(vc, hashes.hashes);
     }
     vc.credentialHash = credHash;
@@ -222,6 +235,9 @@ export async function updateAddProof(
     /* proof 0 - Ed25519 */
     /* validates ownership by checking the signature against the DID */
 
+    /* TODO: Check if callback is actually required now. 
+     * We even removed it from SDK.
+     */
     let cbData = await callbackFn(vc.credentialHash);
 
     let proof0: ED25519Proof = {
@@ -235,29 +251,37 @@ export async function updateAddProof(
 
     /* proof 1 - CordProof */
     /* contains check for revoke */
-    let proof1: CordProof2024 | undefined = undefined;
-    if (options.needStatementProof) {
-        // SDK Method Name: Cord.statement.buildFromUpdateProperties //
-        const statementEntry = updateBuildCordProof(
-            oldStmt,
+    let proof1: CordProof2025 | undefined = undefined;
+    if (options.needEntryProof) {
+        Cord.Entry.updateEntriesProperties(
+            registryId,
+            registryEntryId,
             vc.credentialHash,
-            options.spaceUri!,
-            issuerDid.uri,
-            options.schemaUri ?? undefined,
+            null, // TODO: Check requirement of blob here
         );
-        let elem = statementEntry.elementUri.split(':');
+
         proof1 = {
-            type: 'CordProof2024',
-            elementUri: statementEntry.elementUri,
-            spaceUri: statementEntry.spaceUri,
-            schemaUri: statementEntry.schemaUri,
-            creatorUri: issuerDid.uri,
-            digest: vc.credentialHash,
-            identifier: `${elem[0]}:${elem[1]}:${elem[2]}`,
+            type: 'CordProof2025',
+            /* TODO: We wont be having the elementUri at this moment before its creation, 
+             * think of the steps to be taken for filling up 'elementUri' and 'identifier'.
+             */
+            // elementUri: statementEntry.elementUri,
+            // spaceUri: statementEntry.spaceUri,
+            // schemaUri: statementEntry.schemaUri,
+            // creatorAddress: issuerDid.replace('did:web:','').replace('.myn.social',''),
+            registryId: registryId, 
+            issuerAddress: issuerAddress,
+            tx_hash: vc.credentialHash,
+            /* Check how we can add identifier here, change would be needed in types.ts too */
+            // identifier: `${elem[0]}:${elem[1]}:${elem[2]}`,
             genesisHash: genesisHash,
+            // /* TODO: Fix removal of blob later */
+            // blob: null,
         };
 
-        vc.id = proof1.identifier;
+        /* TODO: Is there a requirement of updating the vc.id on update method? */
+        // vc.id = proof1.identifier;
+        vc.id = vc.id;
     }
 
     vc['proof'] = [proof0];
@@ -268,14 +292,18 @@ export async function updateAddProof(
 }
 
 export function buildVcFromContent(
-    schema: Cord.ISchema,
+    schema: object,
     contents: IContents,
-    issuer: Cord.DidDocument,
-    holder: Cord.DidUri,
-    options: any,
+    issuer: string,
+    holder: string,
+    options?: any | null,
 ) {
-    Cord.Schema.verifyObjectAgainstSchema(contents, schema);
-    const { evidenceIds, validFrom, validUntil, templates, labels, metadata } = options ?? {};
+    /* TODO: Is below needed, we dont have support to verifyObjectAgainstSchema now.
+     * If required we might need a separate method/svc for this.
+     */
+    // Cord.Schema.verifyObjectAgainstSchema(contents, schema);
+
+    const { evidenceIds, validFrom, validUntil, templates, labels, metadata, vcType } = options ?? {};
 
     const now = new Date();
     const issuanceDate = now.toISOString();
@@ -298,7 +326,7 @@ export function buildVcFromContent(
             'https://cord.network/2023/cred/v1',
         ],
         type: ['VerifiableCredential'],
-        issuer: issuer.uri,
+        issuer: issuer,
         issuanceDate: issuanceDate,
         expirationDate:expirationDate,
         credentialSubject,
@@ -312,6 +340,9 @@ export function buildVcFromContent(
         },
         credentialSchema: schema,
     };
+    if (vcType) {
+       vc.type.push(vcType);
+    }
     vc.credentialHash = calculateVCHash(vc, undefined);
 
     return vc as VerifiableCredential;
@@ -320,8 +351,8 @@ export function buildVcFromContent(
 export async function buildEd25519VcFromContent(
     schema: any,
     contents: any,
-    issuer: any,
-    holder: any,
+    issuer: string,
+    holder: string,
     options: any,
 ) {
     // Cord.Schema.verifyObjectAgainstSchema(contents, schema);
@@ -337,6 +368,9 @@ export async function buildEd25519VcFromContent(
     const credentialSubject = {
         ...contents,
     };
+    if (holder) {
+        credentialSubject.id = holder;
+    }
 
     let vc: any = {
         ...schema,
@@ -361,221 +395,226 @@ export async function buildEd25519VcFromContent(
     return vc as VerifiableCredential;
 }
 
-export async function statementEntryToAnchorHash(
-    vc: VerifiableCredential,
-    issuerDid: Cord.DidDocument,
-    options: any,
-    statement?: any,
-) {
-    const credHash = calculateNewVCHash(vc, undefined);
+/* TODO: Fix later, commenting out */
+// export async function statementEntryToAnchorHash(
+//     vc: VerifiableCredential,
+//     issuerDid: string,
+//     options: any,
+//     statement?: any,
+// ) {
+//     const credHash = calculateNewVCHash(vc, undefined);
 
-    let statementEntry;
+//     let statementEntry;
 
-    if (options.call === 'update') {
-        statementEntry = updateBuildCordProof(
-            statement,
-            credHash,
-            options.spaceUri,
-            issuerDid.uri,
-            options.schemaUri ?? undefined,
-        );
-    } else {
-        statementEntry = buildCordProof(
-            credHash,
-            options.spaceUri,
-            issuerDid.uri,
-            undefined,
-        );
-    }
-    return statementEntry;
-}
+//     if (options.call === 'update') {
+//         statementEntry = updateBuildCordProof(
+//             statement,
+//             credHash,
+//             options.spaceUri,
+//             issuerDid,
+//             options.schemaUri ?? undefined,
+//         );
+//     } else {
+//         statementEntry = buildCordProof(
+//             credHash,
+//             options.spaceUri,
+//             issuerDid,
+//             undefined,
+//         );
+//     }
+//     return statementEntry;
+// }
 
-export async function addEd5519Proof(
-    vc: any,
-    callbackFn: SignCallback,
-    issuerDid: Cord.DidDocument,
-    network: ApiPromise,
-    options: any,
-) {
-    if (options.type) {
-        delete vc.credentialHash;
-        // Add statement as id in VC
-        const vcId = options.statement.split(':').slice(0, 3).join(':');
-        vc.id = vcId;
 
-        const signedVC = await signCredential(vc, options.did);
-        return signedVC;
-    } else {
-        const now = dayjs();
-        let credHash: Cord.HexString = calculateVCHash(vc, undefined);
-        let genesisHash: string = await Cord.getGenesisHash(network);
+/* TODO: Fix later, commenting out */
+// export async function addEd5519Proof(
+//     vc: any,
+//     callbackFn: SignCallback,
+//     issuerDid: string,
+//     network: ApiPromise,
+//     options: any,
+// ) {
+//     if (options.type) {
+//         delete vc.credentialHash;
+//         // Add statement as id in VC
+//         const vcId = options.statement.split(':').slice(0, 3).join(':');
+//         vc.id = vcId;
 
-        /* TODO: Bring selective disclosure here */
-        let proof2: CordSDRProof2024 | undefined = undefined;
-        if (options.needSDR) {
-            let contents = { ...vc.credentialSubject };
-            delete contents.id;
+//         const signedVC = await signCredential(vc, options.did);
+//         return signedVC;
+//     } else {
+//         const now = dayjs();
+//         let credHash: Cord.HexString = calculateVCHash(vc, undefined);
+//         let genesisHash: string = await Cord.getGenesisHash(network);
 
-            let hashes = hashContents(contents, options.schemaUri);
+//         /* TODO: Bring selective disclosure here */
+//         let proof2: CordSDRProof2024 | undefined = undefined;
+//         if (options.needSDR) {
+//             let contents = { ...vc.credentialSubject };
+//             delete contents.id;
 
-            /* proof 2 - ConentNonces for selective disclosure */
-            /* This will enable the selective disclosure. This may not be compatible with the normal VC */
-            /* This also would change the 'credentialSubject' */
-            proof2 = {
-                type: 'CordSDRProof2024',
-                defaultDigest: credHash,
-                hashes: hashes.hashes,
-                nonceMap: hashes.nonceMap,
-                genesisHash: genesisHash,
-            };
-            let vocabulary = `${options.schemaUri}#`;
-            vc.credentialSubject['@context'] = { vocab: vocabulary };
-            credHash = calculateVCHash(vc, hashes.hashes);
-        }
-        vc.credentialHash = credHash;
+//             let hashes = hashContents(contents, options.schemaUri);
 
-        /* proof 0 - Ed25519 */
-        /* validates ownership by checking the signature against the DID */
+//             /* proof 2 - ConentNonces for selective disclosure */
+//             /* This will enable the selective disclosure. This may not be compatible with the normal VC */
+//             /* This also would change the 'credentialSubject' */
+//             proof2 = {
+//                 type: 'CordSDRProof2024',
+//                 defaultDigest: credHash,
+//                 hashes: hashes.hashes,
+//                 nonceMap: hashes.nonceMap,
+//                 genesisHash: genesisHash,
+//             };
+//             let vocabulary = `${options.schemaUri}#`;
+//             vc.credentialSubject['@context'] = { vocab: vocabulary };
+//             credHash = calculateVCHash(vc, hashes.hashes);
+//         }
+//         vc.credentialHash = credHash;
 
-        let cbData = await callbackFn(vc.credentialHash);
+//         /* proof 0 - Ed25519 */
+//         /* validates ownership by checking the signature against the DID */
 
-        let proof0: ED25519Proof = {
-            type: 'Ed25519Signature2020',
-            created: now.toDate().toString(),
-            proofPurpose: cbData.keyType,
-            verificationMethod: cbData.keyUri,
-            proofValue: 'z' + base58Encode(cbData.signature),
-            challenge: undefined,
-        };
+//         let cbData = await callbackFn(vc.credentialHash);
 
-        /* proof 1 - CordProof */
-        /* contains check for revoke */
-        let proof1: CordProof2024 | undefined = undefined;
-        if (options.needStatementProof) {
-            // SDK Method Name: Cord.statement.buildFromProperties //
-            const statementEntry = buildCordProof(
-                vc.credentialHash,
-                options.spaceUri!,
-                issuerDid.uri,
-                options.schemaUri ?? undefined,
-            );
-            let elem = statementEntry.elementUri.split(':');
-            proof1 = {
-                type: 'CordProof2024',
-                elementUri: statementEntry.elementUri,
-                spaceUri: statementEntry.spaceUri,
-                schemaUri: statementEntry.schemaUri,
-                creatorUri: issuerDid.uri,
-                digest: vc.credentialHash,
-                identifier: `${elem[0]}:${elem[1]}:${elem[2]}`,
-                genesisHash: genesisHash,
-            };
+//         let proof0: ED25519Proof = {
+//             type: 'Ed25519Signature2020',
+//             created: now.toDate().toString(),
+//             proofPurpose: cbData.keyType,
+//             verificationMethod: cbData.keyUri,
+//             proofValue: 'z' + base58Encode(cbData.signature),
+//             challenge: undefined,
+//         };
 
-            vc.id = proof1.identifier;
-        }
+//         /* proof 1 - CordProof */
+//         /* contains check for revoke */
+//         let proof1: CordProof2025 | undefined = undefined;
+//         if (options.needStatementProof) {
+//             // SDK Method Name: Cord.statement.buildFromProperties //
+//             const statementEntry = buildCordProof(
+//                 vc.credentialHash,
+//                 options.spaceUri!,
+//                 issuerDid,
+//                 options.schemaUri ?? undefined,
+//             );
+//             let elem = statementEntry.elementUri.split(':');
+//             proof1 = {
+//                 type: 'CordProof2025',
+//                 elementUri: statementEntry.elementUri,
+//                 spaceUri: statementEntry.spaceUri,
+//                 schemaUri: statementEntry.schemaUri,
+//                 creatorAddress: issuerDid.replace('did:web:','').replace('.myn.social',''),
+//                 digest: vc.credentialHash,
+//                 identifier: `${elem[0]}:${elem[1]}:${elem[2]}`,
+//                 genesisHash: genesisHash,
+//             };
 
-        vc['proof'] = [proof0];
-        if (proof1) vc.proof.push(proof1);
-        if (proof2) vc.proof.push(proof2);
+//             vc.id = proof1.identifier;
+//         }
 
-        return vc;
-    }
-}
+//         vc['proof'] = [proof0];
+//         if (proof1) vc.proof.push(proof1);
+//         if (proof2) vc.proof.push(proof2);
 
-export async function updateEd25519Proof(
-    oldStmt: StatementUri,
-    vc: any,
-    callbackFn: SignCallback,
-    issuerDid: Cord.DidDocument,
-    network: ApiPromise,
-    options: any,
-) {
-    if (options.type) {
-        delete vc.credentialHash;
-        // Add statement as id in VC
-        const vcId = oldStmt.split(':').slice(0, 3).join(':');
-        vc.id = vcId;
+//         return vc;
+//     }
+// }
 
-        const signedVC = await signCredential(vc, options.did);
-        return signedVC;
-    } else {
-        const now = dayjs();
-        let credHash: Cord.HexString = calculateVCHash(vc, undefined);
-        let genesisHash: string = await Cord.getGenesisHash(network);
+/* TODO: Fix later, commenting out */
+// export async function updateEd25519Proof(
+//     oldStmt: StatementUri,
+//     vc: any,
+//     callbackFn: SignCallback,
+//     issuerDid: string,
+//     network: ApiPromise,
+//     options: any,
+// ) {
+//     if (options.type) {
+//         delete vc.credentialHash;
+//         // Add statement as id in VC
+//         const vcId = oldStmt.split(':').slice(0, 3).join(':');
+//         vc.id = vcId;
 
-        /* TODO: Bring selective disclosure here */
-        let proof2: CordSDRProof2024 | undefined = undefined;
-        if (options.needSDR) {
-            let contents = { ...vc.credentialSubject };
-            delete contents.id;
+//         const signedVC = await signCredential(vc, options.did);
+//         return signedVC;
+//     } else {
+//         const now = dayjs();
+//         let credHash: Cord.HexString = calculateVCHash(vc, undefined);
+//         let genesisHash: string = await Cord.getGenesisHash(network);
 
-            let hashes = hashContents(contents, options.schemaUri);
+//         /* TODO: Bring selective disclosure here */
+//         let proof2: CordSDRProof2024 | undefined = undefined;
+//         if (options.needSDR) {
+//             let contents = { ...vc.credentialSubject };
+//             delete contents.id;
 
-            /* proof 2 - ConentNonces for selective disclosure */
-            /* This will enable the selective disclosure. This may not be compatible with the normal VC */
-            /* This also would change the 'credentialSubject' */
-            proof2 = {
-                type: 'CordSDRProof2024',
-                defaultDigest: credHash,
-                hashes: hashes.hashes,
-                nonceMap: hashes.nonceMap,
-                genesisHash: genesisHash,
-            };
-            let vocabulary = `${options.schemaUri}#`;
-            vc.credentialSubject['@context'] = { vocab: vocabulary };
-            credHash = calculateVCHash(vc, hashes.hashes);
-        }
-        vc.credentialHash = credHash;
+//             let hashes = hashContents(contents, options.schemaUri);
 
-        /* proof 0 - Ed25519 */
-        /* validates ownership by checking the signature against the DID */
+//             /* proof 2 - ConentNonces for selective disclosure */
+//             /* This will enable the selective disclosure. This may not be compatible with the normal VC */
+//             /* This also would change the 'credentialSubject' */
+//             proof2 = {
+//                 type: 'CordSDRProof2024',
+//                 defaultDigest: credHash,
+//                 hashes: hashes.hashes,
+//                 nonceMap: hashes.nonceMap,
+//                 genesisHash: genesisHash,
+//             };
+//             let vocabulary = `${options.schemaUri}#`;
+//             vc.credentialSubject['@context'] = { vocab: vocabulary };
+//             credHash = calculateVCHash(vc, hashes.hashes);
+//         }
+//         vc.credentialHash = credHash;
 
-        let cbData = await callbackFn(vc.credentialHash);
+//         /* proof 0 - Ed25519 */
+//         /* validates ownership by checking the signature against the DID */
 
-        let proof0: ED25519Proof = {
-            type: 'Ed25519Signature2020',
-            created: now.toDate().toString(),
-            proofPurpose: cbData.keyType,
-            verificationMethod: cbData.keyUri,
-            proofValue: 'z' + base58Encode(cbData.signature),
-            challenge: undefined,
-        };
+//         let cbData = await callbackFn(vc.credentialHash);
 
-        /* proof 1 - CordProof */
-        /* contains check for revoke */
-        let proof1: CordProof2024 | undefined = undefined;
-        if (options.needStatementProof) {
-            // SDK Method Name: Cord.statement.buildFromUpdateProperties //
-            const statementEntry = updateBuildCordProof(
-                oldStmt,
-                vc.credentialHash,
-                options.spaceUri!,
-                issuerDid.uri,
-                options.schemaUri ?? undefined,
-            );
-            let elem = statementEntry.elementUri.split(':');
-            proof1 = {
-                type: 'CordProof2024',
-                elementUri: statementEntry.elementUri,
-                spaceUri: statementEntry.spaceUri,
-                schemaUri: statementEntry.schemaUri,
-                creatorUri: issuerDid.uri,
-                digest: vc.credentialHash,
-                identifier: `${elem[0]}:${elem[1]}:${elem[2]}`,
-                genesisHash: genesisHash,
-            };
+//         let proof0: ED25519Proof = {
+//             type: 'Ed25519Signature2020',
+//             created: now.toDate().toString(),
+//             proofPurpose: cbData.keyType,
+//             verificationMethod: cbData.keyUri,
+//             proofValue: 'z' + base58Encode(cbData.signature),
+//             challenge: undefined,
+//         };
 
-            vc.id = proof1.identifier;
-        }
+//         /* proof 1 - CordProof */
+//         /* contains check for revoke */
+//         let proof1: CordProof2025 | undefined = undefined;
+//         if (options.needStatementProof) {
+//             // SDK Method Name: Cord.statement.buildFromUpdateProperties //
+//             const statementEntry = updateBuildCordProof(
+//                 oldStmt,
+//                 vc.credentialHash,
+//                 options.spaceUri!,
+//                 issuerDid,
+//                 options.schemaUri ?? undefined,
+//             );
+//             let elem = statementEntry.elementUri.split(':');
+//             proof1 = {
+//                 type: 'CordProof2025',
+//                 elementUri: statementEntry.elementUri,
+//                 spaceUri: statementEntry.spaceUri,
+//                 schemaUri: statementEntry.schemaUri,
+//                 creatorAddress: issuerDid.replace('did:web:','').replace('.myn.social',''),
+//                 digest: vc.credentialHash,
+//                 identifier: `${elem[0]}:${elem[1]}:${elem[2]}`,
+//                 genesisHash: genesisHash,
+//             };
 
-        vc['proof'] = [proof0];
-        if (proof1) vc.proof.push(proof1);
-        if (proof2) vc.proof.push(proof2);
+//             vc.id = proof1.identifier;
+//         }
 
-        return vc;
-    }
-}
+//         vc['proof'] = [proof0];
+//         if (proof1) vc.proof.push(proof1);
+//         if (proof2) vc.proof.push(proof2);
 
+//         return vc;
+//     }
+// }
+
+/*
 export async function signCredential(vc: VerifiableCredential, did: any) {
     try {
         let signedDoc;
@@ -614,6 +653,7 @@ export async function signCredential(vc: VerifiableCredential, did: any) {
         throw new Error('Error generating signed doc');
     }
 }
+*/
 
 export async function updateEd25519VcFromContent(
     contents: IContents,
@@ -662,12 +702,12 @@ export async function updateVcFromContent(
     contents: IContents,
     vc: VerifiableCredential,
     validUntil: string | undefined,
-    options: any
+    options?: any
 ) {
-    Cord.Schema.verifyObjectAgainstSchema(
-        contents,
-        vc.credentialSchema as Cord.ISchema,
-    );
+    /* TODO: Is below needed, we dont have support to verifyObjectAgainstSchema now.
+     * If required we might need a separate method/svc for this.
+     */
+    // Cord.Schema.verifyObjectAgainstSchema(contents, schema);
 
     const { metadata } = options ?? {};
     const now = new Date();
@@ -702,7 +742,7 @@ export async function updateVcFromContent(
 
 export async function makePresentation(
     vcs: VerifiableCredential[],
-    holder: Cord.DidDocument,
+    holder: string,
     callbackFn: SignCallback,
     challenge: string,
     network: ApiPromise,
@@ -755,11 +795,41 @@ export async function makePresentation(
             'https://cord.network/2023/cred/v1',
         ],
         type: ['VerifiablePresentation'],
-        holder: holder.uri,
+        holder: holder,
         VerifiableCredential: copiedVcs,
         metadata: {},
         proof: proof0,
     };
 
     return vp;
+}
+
+/* TODO: This function can be used in addProof and updateAddProof to get the digest */
+export async function constructCordProof2025(
+    registryId: string,
+    digest: Cord.HexString,
+    /* TODO: Should below be the profile-id or the ss58 Account address */
+    issuerAddress: string,
+    network: ApiPromise,
+    options?: any,
+) {
+    const genesisHash: string = await Cord.getGenesisHash(network);
+        Cord.Entry.createEntriesProperties(
+            registryId,
+            digest,
+            null, // TODO: Check requirement of blob here
+        );
+    
+    let proof: CordProof2025 = {
+        type: 'CordProof2025',
+        registryId: registryId,
+        issuerAddress: issuerAddress,
+        tx_hash: digest,
+        /* Check how we can add identifier here, change would be needed in types.ts too */
+        // identifier: `${elem[0]}:${elem[1]}:${elem[2]}`,
+        genesisHash: genesisHash,
+        // blob: null,
+    };
+
+    return proof;
 }
