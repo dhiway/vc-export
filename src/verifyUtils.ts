@@ -2,7 +2,7 @@ import { base58Decode } from '@polkadot/util-crypto';
 
 import * as Cord from '@cord.network/sdk';
 
-import { verifyAgainstInputProperties2025 } from './entryUtils';
+import { verifyAgainstInputProperties2025 } from './entryUtils.js';
 
 import {
     VerifiableCredential,
@@ -15,7 +15,7 @@ import {
     CordProof2025,
 } from './types';
 
-import { makeStatementsJsonLD, calculateVCHash } from './utils';
+import { makeStatementsJsonLD, calculateVCHash } from './utils.js';
 
 /* TODO: Fix later, commenting out */
 // export async function getDetailsfromChain(

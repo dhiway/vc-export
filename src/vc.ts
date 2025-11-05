@@ -21,7 +21,7 @@ import {
     SignCallback,
 } from './types';
 
-import { hashContents, calculateVCHash, /* calculateNewVCHash */} from './utils';
+import { hashContents, calculateVCHash, /* calculateNewVCHash */} from './utils.js';
 import { v4 as uuidv4 } from 'uuid';
 
 // export function getUriForStatement(
